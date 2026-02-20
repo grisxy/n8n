@@ -1,0 +1,1968 @@
+{
+  "name": "Inmobialiariabot",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "sender": "micaela.gargiulo@coldwellbanker.com.ar"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        -48
+      ],
+      "id": "aa0b338e-3dcb-4186-8897-0eca57602a92",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zNJW8kI7VrCX5PQI",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ecd109c7-1e6f-4108-8f0a-b99c28bafa80",
+              "name": "from",
+              "value": "={{ $json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "81e2ba4a-3efe-4e49-906d-eda368c89125",
+              "name": "titulo",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "280e33d6-859e-47b2-a6bf-f234ced84ba1",
+              "name": "date",
+              "value": "={{ $('Gmail Trigger').item.json.headers.date }}",
+              "type": "string"
+            },
+            {
+              "id": "c4987942-4d26-4ad8-94ff-dc8cea1b68f5",
+              "name": "text",
+              "value": "={{ $('Gmail Trigger').item.json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        -48
+      ],
+      "id": "3f87eb60-769e-4752-97bb-b95d9f4767e5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Entrada de datos:\n\nAsunto del mail: {{ $json.titulo }}\n\nCuerpo del mail (HTML/Text): {{ $json.html || $json.text }}",
+        "options": {
+          "systemMessage": "=Rol: Actuá como un experto en extracción de datos y parsing de correos electrónicos inmobiliarios.\n\nTarea: Analizar una notificación de \"Tokko Broker\" y extraer los datos del lead y la ficha técnica de la propiedad en un JSON estructurado.\n\nInstrucciones de extracción críticas:\n\nPrecio: Buscá dentro del HTML un valor que contenga \"USD\" o \"$\" seguido de números (ej: \"USD 285.000\").\n\nSuperficie: Buscá números seguidos de la unidad \"mts²\" (ej: \"138,00 mts²\").\n\nReferencia ID: Buscá el prefijo \"Ref:\" seguido de un código alfanumérico (ej: \"CLA6989834\").\n\nUbicación/Título: Extraé el texto que está antes de la barra \"|\" (ej: \"Terreno en Capital Federal\") y el barrio que está después (ej: \"Saavedra\").\n\nLead: Extraé el nombre (Francisco Avila), email y teléfono que aparecen en la sección gris de \"Información de contacto\".\n\nLink de la Propiedad: Buscá la etiqueta <a> Propiedades/Emprendimientos relacionados y extraé el valor del atributo href (ej: https://ficha.info/p/eDuxqdtMGoFxxa).\n\n[Formato]:\n- Al precio sacarle todo prefijo de dinero \"USD\", \"$\", \"€\". Ejemplo de salida: 285000\n- A la superficie sacarle \"mts²\". Ejemplo de salida: 138.00\n\nFormato de salida ejemplo (JSON estricto):\n\n{\n  \"lead\": {\n    \"nombre\": \"\",\n    \"email\": \"\",\n    \"telefono\": \"\",\n    \"mensaje_cliente\": \"\"\n  },\n  \"propiedad\": {\n    \"titulo\": \"\",\n    \"precio\": \"\",\n    \"superficie\": \"\",\n    \"referencia_id\": \"\",\n    \"tipo\": \"\",\n    \"ubicacion\": \"\"\n  },\n\n  \"propiedad\": {\n    ...\n    \"link_web\": \"URL_AQUÍ\"\n  },\n  \"meta\": {\n    \"origen\": \"\",\n    \"etiquetas\": [\"argenprop\", \"Venta\", \"Terreno\", \"Saavedra\", \"Consulta\"]\n  }\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "6a85a32e-f0a7-4f21-949d-4e2d5de33295",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        160
+      ],
+      "id": "86f0e51d-478b-4299-931a-10cef6301c5c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        -48
+      ],
+      "id": "b4d40676-af09-43f3-abea-874a0d32b2b6",
+      "name": "Get a message",
+      "webhookId": "405be38c-0a54-4e02-8a3c-fe79803b8c14",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zNJW8kI7VrCX5PQI",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Obtenemos todos los datos que llegan del nodo anterior (la IA)\nconst items = $input.all();\n\n// 2. Procesamos cada item para convertir el texto en JSON real\nconst transformedItems = items.map((item) => {\n  // Limpiamos los posibles bloques de código (```json ... ```) \n  // que la IA suele agregar por defecto\n  const outputString = item.json.output.replace(/```json|```/g, '').trim();\n\n  // Convertimos el string de texto limpio en un objeto JSON real\n  const output = JSON.parse(outputString);\n\n  // Devolvemos el objeto procesado\n  return {\n    json: output\n  };\n});\n\n// 3. Enviamos los datos listos al siguiente nodo\nreturn transformedItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        -48
+      ],
+      "id": "8d9f025f-ecd4-4fbd-a470-8713e243eebe",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evo.bleepy.com.ar/message/sendText/Inmobiliaria",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "7E799C5670B1-4699-9A26-58BD8F6A3EB1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "5491163308020"
+            },
+            {
+              "name": "text",
+              "value": "=\nHola {{ $('Code in JavaScript').item.json.lead.nombre }}, como estas? Soy Sofia la asistente de Micaela, asesora inmobiliaria de Coldwell Banker Lion Team.\n\nVi tu consulta por el {{ $('Code in JavaScript').item.json.propiedad.titulo }} en {{ $('Code in JavaScript').item.json.propiedad.ubicacion }}. Te dejo el link con la ficha técnica acá: {{ $('Code in JavaScript').item.json.propiedad.link_web }}\n\nTe aviso que no podemos escuchar audios, así que por favor escribime todo por texto así te leo rápido.\n\nTambién te dejo el Instagram de Mica para que veas nuestra cartera y novedades: https://www.instagram.com/mudatecon.mica"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        -48
+      ],
+      "id": "90b2e4e0-e390-4f12-a56a-c03875242d8e",
+      "name": "HTTP Request operario",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Inmobiliaria\n### primer msm al cliente y operario\n",
+        "height": 560,
+        "width": 2128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "b89a6903-6758-4446-a175-fa61addbe1ba",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Inmobiliaria",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -512,
+        688
+      ],
+      "id": "22ec438e-fd65-435f-913f-81770e3bb798",
+      "name": "Webhook",
+      "webhookId": "5d20e98c-7af5-4d05-bd3c-875d70f5afd3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7812029-4c5e-48d1-ada4-238be39d3bd9",
+              "name": "name",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "c1d2b4d4-e676-47b3-b3e4-9d4aec759e7d",
+              "name": "phone",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "6d75afd1-2e68-4969-a99f-50542607ab24",
+              "name": "body",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "e90c726d-fc17-4090-a011-058ac42e677c",
+              "name": "apikey",
+              "value": "={{ $json.body.apikey }}",
+              "type": "string"
+            },
+            {
+              "id": "50f1bb92-ca44-44be-b8c5-0712916509e1",
+              "name": "urlserver",
+              "value": "={{ $json.body.server_url }}",
+              "type": "string"
+            },
+            {
+              "id": "7710a45c-942c-4677-85e3-a1a7c7665b55",
+              "name": "instancia",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        688
+      ],
+      "id": "dc7eae19-bfd2-4483-bea7-8a0f0e72541c",
+      "name": "datos1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jid = $input.first().json.phone; // \"5491136656962@s.whatsapp.net\"\n\nreturn {\n  phone: jid.replace('@s.whatsapp.net', '')\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        688
+      ],
+      "id": "70ca1448-d6aa-4b18-bccb-afd4e015bd95",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $json.phone }}",
+        "messageData": "={{ $('datos1').item.json.body }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        16,
+        688
+      ],
+      "id": "712d6676-2d6b-4e2f-915f-0e1012e271bc",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "EUVEpWaEq2G0CDt8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        688
+      ],
+      "id": "e4976946-7ba3-4a95-8923-185e6656b474",
+      "name": "Wait2",
+      "webhookId": "462ee389-fe76-4a1d-b939-176f98597466"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "ListMSM",
+        "key": "={{ $('Code in JavaScript1').item.json.phone }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        384,
+        688
+      ],
+      "id": "41d66a2d-1286-42f6-a742-70a7933c7d99",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "EUVEpWaEq2G0CDt8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8c21291c-c8c7-49c5-a5fd-b7ac0d046de8",
+              "leftValue": "={{ $json.ListMSM.first() }}",
+              "rightValue": "={{ $('datos1').item.json.body }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        688
+      ],
+      "id": "bad6ef3e-ca60-4627-8858-bfe26b962ea9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ecdc1153-91b8-49a5-92e8-455f2087a848",
+              "name": "mensagge",
+              "value": "={{ $json.ListMSM.join(', ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        576
+      ],
+      "id": "07b6a86b-8d3c-4a47-bbe3-efa53793022e",
+      "name": "ListaDatos"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        832
+      ],
+      "id": "1fa2eff3-23ba-494c-b2ff-22a7bbe45f6e",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        816
+      ],
+      "id": "5292a577-2069-472f-9634-18d39714c0c5",
+      "name": "IA",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Code in JavaScript1').item.json.phone }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        816
+      ],
+      "id": "00a3bce6-9b82-4a00-b8be-3b70e7530ea8",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Interesado: {{ $json.Nombre_cliente }}\nMensaje del cliente: {{ $('ListaDatos').item.json.mensagge }}\nOrigen: {{ $json.origen }}\n",
+        "options": {
+          "systemMessage": "=[ROL] sos Sofia, asistente comercial de la inmobiliaria. Trabajás con Micaela para coordinar visitas y calificar interesados. Tu objetivo es obtener la información del protocolo de Micaela y, una vez recolectada, registrarla en el sistema.\n\n\n[TU FICHA TÉCNICA (NUNCA INVENTAR DATOS)] Tenés esta propiedad abierta en tu pantalla para responder dudas de {{ $json.Nombre_cliente }}:\n\nTítulo: {{ $json.Propiedad_titulo }}\n\nUbicación: {{ $json.ubicacion }} \n\nPrecio: {{ $json.Precio }}\n\nSuperficie: {{ $json.superficie }}\n\nReferencia: {{ $json.referencia_id }}\n\nLink: {{ $json.link_web }}\n\n[IDENTIDAD Y TONO]\n\nPersonalidad: Masculino, profesional, amable y directo.\n\nTono: WhatsApp de Argentina, comercial pero cercano.\n\nEstilo: No uses muletillas como \"dale\", \"che\" o \"tranqui\" si no es natural. Evitá los puntos finales en frases cortas.\n\n[REGLA CRÍTICA DE SIGNOS Y FORMATO]\n\nNunca uses signos al inicio (¿ o ¡). Usá solo uno al final si es pregunta (?) o exclamación (!).\n\n[REGLA DE MEMORIA Y ESTADO]\n1. Antes de responder, REVISÁ el historial de la conversación.\n2. Si ya saludaste al cliente o ya mencionaste la propiedad en mensajes anteriores, PROHIBIDO volver a presentarte o decir \"Hola, soy Sofia\".\n3. Si la charla ya empezó, andá directamente al paso del [FLUJO DE VENTA] que quedó pendiente.\n4. Solo debés hacer UNA PREGUNTA por vez. No avances al siguiente paso hasta que el usuario responda el actual.\n\n[REGLA DE ORO: UNA PREGUNTA A LA VEZ]\n\nPROHIBIDO hacer más de una pregunta en el mismo mensaje.\n\nDebés esperar a que el usuario responda cada paso antes de realizar la siguiente pregunta del protocolo.\n\nSi el usuario responde a dos pasos en un solo mensaje, podés avanzar al tercero, pero nunca te adelantes a la información que el usuario no ha dado todavía.\n\n[FLUJO DE VENTA - PROTOCOLO MICAELA] Seguí estos pasos estrictamente en orden:\n\nPreviamente se le pregunto el texto de \"Referencia e Interés\" asi que no lo vuelvas a mandar. \n\nReferencia e Interés: \"Hola {{ $json.Nombre_cliente }}, soy Sofia de la inmobiliaria. Vi tu consulta por el {{ $json.Propiedad_titulo }} en {{ $json.ubicacion }}. ¿Querés coordinar una visita para verlo?\"\n\nDespues de esto arranca la conversación de verdad\n\nSi el usuario responde \"Si\" o alguna afirmacion preguntarle:\n\nIdentificación: Preguntá, Sos interesado en hacer una compra? o sos de imobiliaria?\n\nHorarios: \"¿Cuáles son tus horarios disponibles para coordinar la visita?\".\n\nForma de Pago: \"Te consulto, ¿buscás para comprar en efectivo, crédito (puede ser que la persona escriba sin acento en la é tomalo igual como crédito) o permuta?\".\n\nSi el usuario responde \"No\" o alguna negacion a la pregunta ¿Querés coordinar una visita para verlo?\":\n\nPreguntarle si esta buscando algo diferente.\n\nSi el usuario dice que SÍ busca algo diferente, seguí este orden ESTRICTO (una pregunta por mensaje):\n\n1. PRECIO: Preguntá cuál es su presupuesto máximo.\n   (Esperar respuesta)\n2. ZONAS: Preguntá en qué zonas específicas está interesado.\n   (Esperar respuesta)\n3. AMBIENTES: Preguntá la cantidad de ambientes mínima que necesita.\n   (Esperar respuesta)\n4. DETALLES: Preguntá si hay alguna característica o detalle puntual que no pueda faltar.\n   (Esperar respuesta)\n\n[REGLA DE REGISTRO NOCODB]\nSolo cuando tengas TODOS los datos anteriores (Precio, Zona, Ambientes y Detalles), ejecutá la herramienta 'buscando_otra' con los campos correspondientes:\n- min_precio / max_precio: (Basado en su respuesta)\n- zona: [Lista de zonas mencionadas]\n- min_ambientes / max_ambientes: (Basado en su respuesta)\n- detalle: (Lo recolectado en el paso 4)\n- interesado_otra: true\n\nSi dice que no:\nBueno, cualquier cosa que necesites no dudes en escribirnos\n\nSi se usa la herramienta \"buscando_otra\" no se ejecuta la herramienta \"create_informacion\" y asi viceversa.\n\nCuando se junten todos los datos y ya se haya ejecutado la herramienta \"buscando_otra\"\nresponder con un Gracias por su tiempo, Micaela se pondra en contacto con usted.\n\n[RAMIFICACIÓN DE RESPUESTAS (PASO 4)]\n\nSi es EFECTIVO:\n\nRespondé: \"Ok, en breve se comunicará Micaela con usted para coordinar. ¿Querés dejarle alguna otra consulta a Micaela?\".\n\nSi es PERMUTA:\n\nSi es Particular: Respondé: \"Perfecto, decime qué propiedad tenés para ver si al cliente le interesa. Contame la zona, ambientes y si está en venta actualmente\".\n\nSi es Inmobiliaria: Omití el paso anterior y decí: \"Ok, en breve se comunicará Micaela con usted\".\n\nSi es CRÉDITO:\n\nPreguntá: \"¿Qué banco? ¿Ya lo tenés preparado?\".\n\nSi dice que sí: \"Ok, en breve se comunicará Micaela con usted\".\n\n\n[REGISTRO EN NOCODB (HERRAMIENTA: create_informacion)]\nREGLA DE EJECUCIÓN ABSOLUTA: Debés invocar la herramienta create_informacion únicamente cuando hayas llegado al final de cualquiera de las 3 ramas de pago (Efectivo, Crédito o Permuta) y tengas la respuesta final del cliente.\n\nMapeo de Campos para la Herramienta: Para ejecutar create_informacion, debés asignar los valores de la siguiente manera:\n\nTipo_Interesado: El valor recolectado en el paso 2 (\"Particular\" o \"Inmobiliaria\").\n\nHorarios_Visita: Los horarios que el cliente indicó para coordinar con Micaela.\n\nForma_Pago: \"Efectivo\", \"Crédito\" o \"Permuta\".\n\nBanco_Credito: (Solo si es Crédito) Nombre del banco mencionado sino null.\n\nCredito_Listo: (Solo si es Crédito) \"True\" o \"False\" según si ya lo tiene preparado.\nSi no es credito pone el valor como {{ false }}\n\nDetalle_Permuta: (Solo si es Particular y Permuta) Descripción de su propiedad (zona, ambientes, etc).\n\nConsulta_Micaela: (Opcional - Solo si es Efectivo) Cualquier duda extra que el cliente quiera dejarle a Micaela.\n\n[RESTRICCIÓN DE DOMINIO]\n\nSos experto ÚNICAMENTE en la propiedad consultada y el proceso de la inmobiliaria.\n\nSi preguntan cosas ajenas, respondé: \"Perdón, pero ahora mismo solo te puedo ayudar con la consulta por la propiedad en {{ $json.ubicacion }}\".\n\n[GESTIÓN DE HORARIO] Hora actual: {{ $now.format('HH:mm') }}\n\n[RESTRICCIÓN FINAL] Solo entregá el texto conversacional. Sin análisis, razonamientos internos, ni texto en inglés, ni note."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1392,
+        576
+      ],
+      "id": "57e30ae2-3cef-4c2d-85df-030b48fa4d84",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "content": "## Charla con el cliente",
+        "height": 624,
+        "width": 2784,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        448
+      ],
+      "typeVersion": 1,
+      "id": "2e8d2eb5-5287-4972-a2a0-bfcccaa3bcc3",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mzctce4b2bi0806",
+        "limit": 1,
+        "options": {
+          "sort": {
+            "property": [
+              {
+                "field": "Id"
+              }
+            ]
+          },
+          "where": "=(Telefono,eq,{{ $('Code in JavaScript1').item.json.phone }})"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        576
+      ],
+      "id": "35e64dfa-2b42-4982-a2bc-00eb43522d2d",
+      "name": "Get many rows",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('datos1').item.json.urlserver }}/message/sendText/{{ $('datos1').item.json.instancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('datos1').item.json.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Code in JavaScript1').item.json.phone }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 2000 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1744,
+        576
+      ],
+      "id": "bc003c84-a5a8-42d9-8af1-065c44f00b7e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evo.bleepy.com.ar/message/sendText/Inmobiliaria",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "7E799C5670B1-4699-9A26-58BD8F6A3EB1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "5491163308020"
+            },
+            {
+              "name": "text",
+              "value": "=¿Te sigue interesando coordinar una visita o te quedó alguna duda con la info? 😊"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1584,
+        -48
+      ],
+      "id": "f4189271-8461-4606-9dee-1c7f811924e6",
+      "name": "HTTP Request operario1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        -48
+      ],
+      "id": "5fd66a7d-14aa-42b5-a11c-7cab957fb271",
+      "name": "Wait",
+      "webhookId": "bdd054cb-8263-4a04-9294-213d3ecbdb30"
+    },
+    {
+      "parameters": {
+        "content": "## Recordatorio 24h\n### te sigue interesando?\n\n",
+        "height": 544,
+        "width": 960
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        1184
+      ],
+      "typeVersion": 1,
+      "id": "34496b23-d62e-4272-88b7-13a94e0330c8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        1376
+      ],
+      "id": "b6eea3f0-040c-451d-90bc-97b3e917289e",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mzctce4b2bi0806",
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        -272,
+        1376
+      ],
+      "id": "c29ef395-5271-4351-95fb-89cea87050a5",
+      "name": "Get many rows1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "635c3eee-5ab3-4c3a-8c74-e2a2e8db65e6",
+              "leftValue": "={{ $json.Respondio }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        1376
+      ],
+      "id": "717c75da-aff5-4dd2-aa9c-e1a664337ee3",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mjj6o3ao2ry9vf3",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Numero",
+              "fieldValue": "={{ $('Code in JavaScript1').item.json.phone }}"
+            },
+            {
+              "fieldName": "Mensaje (ia)",
+              "fieldValue": "={{ $('AI Agent1').item.json.output }}"
+            },
+            {
+              "fieldName": "Mensaje (usuario)",
+              "fieldValue": "={{ $('datos1').item.json.body }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1904,
+        576
+      ],
+      "id": "67585b12-4e30-46aa-82d0-65851dd4357b",
+      "name": "Create a row1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mzctce4b2bi0806",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Telefono",
+              "fieldValue": "=549{{ $json.lead.telefono }}"
+            },
+            {
+              "fieldName": "Nombre_cliente",
+              "fieldValue": "={{ $json.lead.nombre }}"
+            },
+            {
+              "fieldName": "Email",
+              "fieldValue": "={{ $json.lead.email }}"
+            },
+            {
+              "fieldName": "mensaje",
+              "fieldValue": "={{ $json.lead.mensaje_cliente }}"
+            },
+            {
+              "fieldName": "Propiedad_titulo",
+              "fieldValue": "={{ $json.propiedad.titulo }}"
+            },
+            {
+              "fieldName": "Precio",
+              "fieldValue": "={{ $json.propiedad.precio }}"
+            },
+            {
+              "fieldName": "superficie",
+              "fieldValue": "={{ $json.propiedad.superficie }}"
+            },
+            {
+              "fieldName": "referencia_id",
+              "fieldValue": "={{ $json.propiedad.referencia_id }}"
+            },
+            {
+              "fieldName": "tipo",
+              "fieldValue": "={{ $json.propiedad.tipo }}"
+            },
+            {
+              "fieldName": "ubicacion",
+              "fieldValue": "={{ $json.propiedad.ubicacion }}"
+            },
+            {
+              "fieldName": "link_web",
+              "fieldValue": "={{ $json.propiedad.link_web }}"
+            },
+            {
+              "fieldName": "origen",
+              "fieldValue": "={{ $json.meta.origen }}"
+            },
+            {
+              "fieldName": "Fecha_mensaje",
+              "fieldValue": "={{ $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1008,
+        -48
+      ],
+      "id": "bc3eba3c-9c5b-49cb-b312-86ad380a71b4",
+      "name": "Create a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/Inmobiliaria/Base/{{ $('Get many rows').item.json.Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Respondio",
+              "value": "={{true}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2064,
+        576
+      ],
+      "id": "e5eb534c-7e1f-43c3-8c0b-a2195ef5e7a5",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evo.bleepy.com.ar/message/sendText/Inmobiliaria",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "7E799C5670B1-4699-9A26-58BD8F6A3EB1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Get many rows1').item.json.Telefono }}"
+            },
+            {
+              "name": "text",
+              "value": "=Hola {{ $('Get many rows1').item.json.Nombre_cliente }}! 👋 Paso por acá por última vez para ver si pudiste revisar la información del {{ $('Get many rows1').item.json.Propiedad_titulo }} que te mandé ayer  ¿Te sigue interesando coordinar una visita o preferís que busquemos algo con otras características? 🏠   Cualquier cosa avisame y lo coordinamos con Micaela!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        1312
+      ],
+      "id": "f3c13b22-0613-473b-8272-86ce60074a6c",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        144,
+        1472
+      ],
+      "id": "f19cf915-d44b-4bf2-9a13-8b55b902462e",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Redis').item.json.phone }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        576
+      ],
+      "id": "6fa71a5a-6a9c-4433-b657-628b3b7d38ef",
+      "name": "Redis2",
+      "credentials": {
+        "redis": {
+          "id": "EUVEpWaEq2G0CDt8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mz55272fuadu95p",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Telefono",
+              "fieldValue": "={{ $json.Telefono }}"
+            },
+            {
+              "fieldName": "Tipo_Interesado",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues1_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Horarios_Visita",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues2_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Forma_Pago",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues3_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Banco_Credito",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues4_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Credito_Listo",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues5_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Detalle_Permuta",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues6_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Consulta_Micaela",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues7_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDbTool",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        816
+      ],
+      "id": "30ae0d5e-7955-4892-aaed-e085c72bb59c",
+      "name": "create_informacion",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mv2avv4z91daamm",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Telefono",
+              "fieldValue": "={{ $json.Telefono }}"
+            },
+            {
+              "fieldName": "nombre",
+              "fieldValue": "={{ $json.Nombre_cliente }}"
+            },
+            {
+              "fieldName": "min_precio",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues2_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "max_precio",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues3_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "zona",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues4_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "min_ambientes",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues5_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "max_ambientes",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues6_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "detalle",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues7_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "interesado_otra",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues8_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDbTool",
+      "typeVersion": 3,
+      "position": [
+        1712,
+        816
+      ],
+      "id": "a4686b22-8dbc-4c49-8a4d-1380180b0c8b",
+      "name": "buscando_otra",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evo.bleepy.com.ar/message/sendText/Pruebas",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "4EE58EF7362F-4ABA-95BA-154A6203E136"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "5491163308020"
+            },
+            {
+              "name": "text",
+              "value": "=📋 Resumen de Consulta del Cliente\nAquí tienes el detalle de la información recibida:\n\n📞 Datos de Contacto:\n\nNombre: {{ $json.Nombre_cliente }}\n\nTeléfono: {{ $json.Telefono }}\n\n🏠 Interés y Disponibilidad:\n\nPropiedad de interés: {{ $json.Propiedad_titulo }}\n\nHorario preferido de visita: {{ $('Edit Fields1').item.json.horario_visita }}\n\n💰 Información Financiera:\n\nFormato de pago: {{ $('Edit Fields1').item.json.formato_pago }}\n\nEntidad Bancaria: {{ $json.banco || \"no especificado\"}}\n\nEstado del crédito: {{ $('Edit Fields1').item.json.credito_listo || \"no especificado\" }}\n\n🚗 Detalle de Permuta: {{ $json.detalle_permuta || \"no especificado\"}}\n\n💬 Consulta Adicional: {{ $json.consulta || \"no hay consulta\"}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1328,
+        1328
+      ],
+      "id": "5dd7d226-3f91-4031-a490-b0db432c2fc3",
+      "name": "HTTP Request operario2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "631ea3ab-446c-4ad4-862d-d7d876cfb736",
+              "name": "telefono",
+              "value": "={{ $json.body.data.rows[0].Telefono }}",
+              "type": "string"
+            },
+            {
+              "id": "76f49bd4-bb78-4c38-8952-8add42805655",
+              "name": "interesado",
+              "value": "={{ $json.body.data.rows[0].Tipo_Interesado }}",
+              "type": "string"
+            },
+            {
+              "id": "67f7e6ac-26d0-4441-ab54-0bea5ff7ebd3",
+              "name": "horario_visita",
+              "value": "={{ $json.body.data.rows[0].Horarios_Visita }}",
+              "type": "string"
+            },
+            {
+              "id": "e414b114-1742-48be-96e4-f989ebe4faae",
+              "name": "formato_pago",
+              "value": "={{ $json.body.data.rows[0].Forma_Pago }}",
+              "type": "string"
+            },
+            {
+              "id": "be398c66-35dc-4311-89cf-dac052d74205",
+              "name": "banco",
+              "value": "={{ $json.body.data.rows[0].Banco_Credito }}",
+              "type": "string"
+            },
+            {
+              "id": "0ee1ad01-39f1-4e62-b591-673eede7be1b",
+              "name": "credito_listo",
+              "value": "={{ $json.body.data.rows[0].Credito_Listo }}",
+              "type": "boolean"
+            },
+            {
+              "id": "97f5f550-e998-41bf-a48b-a53e2f321efd",
+              "name": "detalle_permuta",
+              "value": "={{ $json.body.data.rows[0].Detalle_Permuta }}",
+              "type": "string"
+            },
+            {
+              "id": "8b7edefc-8cbf-404f-aa43-c7f60a50ccd1",
+              "name": "consulta",
+              "value": "={{ $json.body.data.rows[0].Consulta_Micaela }}",
+              "type": "string"
+            },
+            {
+              "id": "357cb8e2-53d6-4d35-8b96-25259c43a3f0",
+              "name": "nombre",
+              "value": "={{ $json.body.data.rows[0].Nombre }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        1328
+      ],
+      "id": "93b1cb38-0ae5-4d41-9db8-c5d33fc788fe",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "inmobiliaria-noco",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        1328
+      ],
+      "id": "4c1e5cc4-3b3f-42a0-9b11-67b19b2047e7",
+      "name": "datos_interesado",
+      "webhookId": "9ebbfb25-27c0-44ae-8c04-b3b1b9121dff"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "631ea3ab-446c-4ad4-862d-d7d876cfb736",
+              "name": "telefono",
+              "value": "={{ $json.body.data.rows[0].Telefono }}",
+              "type": "string"
+            },
+            {
+              "id": "6f15e3b3-88f5-4e30-ac82-18501db6570c",
+              "name": "max_precio",
+              "value": "={{ $json.body.data.rows[0].max_precio }}",
+              "type": "string"
+            },
+            {
+              "id": "868710e7-6bea-4c25-bf87-f597beb43725",
+              "name": "min_precio",
+              "value": "={{ $json.body.data.rows[0].min_precio }}",
+              "type": "string"
+            },
+            {
+              "id": "a44aa015-f761-40a9-96d4-375e4d3b0585",
+              "name": "zona",
+              "value": "={{ $json.body.data.rows[0].zona }}",
+              "type": "string"
+            },
+            {
+              "id": "03938f21-d1e9-4e96-9b97-2bd82476e8ab",
+              "name": "max_ambientes",
+              "value": "={{ $json.body.data.rows[0].max_ambientes }}",
+              "type": "string"
+            },
+            {
+              "id": "8e3019b6-44ad-4edc-a0ea-bd8790515a52",
+              "name": "min_ambientes",
+              "value": "={{ $json.body.data.rows[0].min_ambientes }}",
+              "type": "string"
+            },
+            {
+              "id": "595831a7-522c-48e1-bc1a-127aa46757f6",
+              "name": "nombre",
+              "value": "={{ $json.body.data.rows[0].nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "1fa6d4bf-8b1e-4f3e-bbe2-f6af476b2648",
+              "name": "detalle",
+              "value": "={{ $json.body.data.rows[0].detalle }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        1536
+      ],
+      "id": "4c35d7dc-7481-4c14-b840-5374334a2576",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evo.bleepy.com.ar/message/sendText/Inmobiliaria",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "7E799C5670B1-4699-9A26-58BD8F6A3EB1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "5491163308020"
+            },
+            {
+              "name": "text",
+              "value": "=📋 Resumen de Requerimientos:\nAquí tienes el detalle actualizado de la búsqueda para el cliente:\n\n Nombre: {{ $json.nombre }}\n\n📞 Teléfono: {{ $json.telefono }}\n\n📍 Zona de interés: {{ $json.zona }}\n\n💰 Rango de Presupuesto: \n\nDesde: {{ $json.min_precio || \"no especificado\"}}\n\nHasta: {{ $json.max_precio || \"no especificado\"}}\n\n🏠 Cantidad de Ambientes:\n\nMínimo: {{ $json.min_ambientes || \"no especificado\"}}\n\nMáximo: {{ $json.max_ambientes || \"no especificado\"}}\n\nDetalle : {{ $json.detalle || \"sin detalles\"}}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1120,
+        1536
+      ],
+      "id": "41e0c707-b0b1-490a-bf57-2884e5249614",
+      "name": "HTTP Request operario3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "buscando-otra",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        1536
+      ],
+      "id": "1bd1aad0-c781-4a89-a56b-f6d85dbdfbd6",
+      "name": "buscando_otra2",
+      "webhookId": "0f4c11f5-4edb-41df-9db9-68b91c7c1ed7"
+    },
+    {
+      "parameters": {
+        "content": "## Notif a mica\n \n",
+        "height": 544,
+        "width": 1008
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        1184
+      ],
+      "typeVersion": 1,
+      "id": "04f1143a-1183-4b8e-bd3b-eef1bbcfa7cb",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p1w0wjxtj0gl8xi",
+        "table": "mzctce4b2bi0806",
+        "limit": 1,
+        "options": {
+          "sort": {
+            "property": [
+              {
+                "field": "Telefono"
+              }
+            ]
+          },
+          "where": "=(Telefono,eq,{{ $json.telefono }})"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1104,
+        1328
+      ],
+      "id": "20d25cf1-8dfb-4558-b1ee-031013a9d94d",
+      "name": "Get many rows2",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "buscando_otra2": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.bleepy.com.ar",
+            "user-agent": "axios/1.12.2",
+            "content-length": "522",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.22.0.1",
+            "x-forwarded-host": "n8n.bleepy.com.ar",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1c0f54a5f64b",
+            "x-real-ip": "172.22.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "records.after.insert",
+            "id": "7e061ac6-6642-40d7-aac2-aeeb1e2dc234",
+            "base_id": "p1w0wjxtj0gl8xi",
+            "version": "v3",
+            "data": {
+              "table_id": "mv2avv4z91daamm",
+              "table_name": "buscando_otra",
+              "rows": [
+                {
+                  "Id": 12,
+                  "Telefono": "5491136656962",
+                  "max_precio": "800000",
+                  "zona": "Ituzaingo",
+                  "min_ambientes": "2",
+                  "interesado_otra": "true",
+                  "max_ambientes": "",
+                  "min_precio": "0",
+                  "detalle": "que tenga 3 ventanas",
+                  "nombre": "Francisco Avila",
+                  "created_at": "2026-02-18 18:55:33+00:00",
+                  "updated_at": null,
+                  "created_by": "usw8nlbq3zserv6t",
+                  "updated_by": null
+                }
+              ]
+            }
+          },
+          "webhookUrl": "https://n8n.bleepy.com.ar/webhook/buscando-otra",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.bleepy.com.ar",
+            "user-agent": "axios/1.13.2",
+            "content-length": "1464",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.22.0.1",
+            "x-forwarded-host": "n8n.bleepy.com.ar",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1c0f54a5f64b",
+            "x-real-ip": "172.22.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "Inmobiliaria",
+            "data": {
+              "key": {
+                "remoteJid": "5491157017262@s.whatsapp.net",
+                "remoteJidAlt": "5491157017262@s.whatsapp.net",
+                "fromMe": false,
+                "id": "ACCE88220BCD102FF44727B2D6A00468",
+                "participant": "",
+                "addressingMode": "lid"
+              },
+              "pushName": "Nicoo 🎩",
+              "status": "DELIVERY_ACK",
+              "message": {
+                "conversation": "Si, si dispone para mostrar el finde",
+                "messageContextInfo": {
+                  "threadId": [],
+                  "deviceListMetadata": {
+                    "senderKeyIndexes": [],
+                    "recipientKeyIndexes": [],
+                    "senderKeyHash": {
+                      "0": 164,
+                      "1": 113,
+                      "2": 194,
+                      "3": 193,
+                      "4": 218,
+                      "5": 179,
+                      "6": 91,
+                      "7": 16,
+                      "8": 87,
+                      "9": 171
+                    },
+                    "senderTimestamp": {
+                      "low": 1770515810,
+                      "high": 0,
+                      "unsigned": true
+                    },
+                    "recipientKeyHash": {
+                      "0": 72,
+                      "1": 177,
+                      "2": 183,
+                      "3": 33,
+                      "4": 139,
+                      "5": 15,
+                      "6": 117,
+                      "7": 220,
+                      "8": 64,
+                      "9": 107
+                    },
+                    "recipientTimestamp": {
+                      "low": 1771033971,
+                      "high": 0,
+                      "unsigned": true
+                    }
+                  },
+                  "deviceListMetadataVersion": 2,
+                  "messageSecret": {
+                    "0": 40,
+                    "1": 160,
+                    "2": 244,
+                    "3": 105,
+                    "4": 59,
+                    "5": 249,
+                    "6": 169,
+                    "7": 11,
+                    "8": 196,
+                    "9": 72,
+                    "10": 84,
+                    "11": 66,
+                    "12": 28,
+                    "13": 46,
+                    "14": 124,
+                    "15": 142,
+                    "16": 105,
+                    "17": 86,
+                    "18": 251,
+                    "19": 43,
+                    "20": 71,
+                    "21": 86,
+                    "22": 185,
+                    "23": 202,
+                    "24": 195,
+                    "25": 15,
+                    "26": 100,
+                    "27": 87,
+                    "28": 138,
+                    "29": 223,
+                    "30": 28,
+                    "31": 81
+                  }
+                }
+              },
+              "messageType": "conversation",
+              "messageTimestamp": 1771527257,
+              "instanceId": "43f820bc-da32-4fd1-a028-096e9b0c768d",
+              "source": "android"
+            },
+            "destination": "https://n8n.bleepy.com.ar/webhook/Inmobiliaria",
+            "date_time": "2026-02-19T15:54:17.437Z",
+            "sender": "5491173715073@s.whatsapp.net",
+            "server_url": "https://evo.bleepy.com.ar",
+            "apikey": "7E799C5670B1-4699-9A26-58BD8F6A3EB1"
+          },
+          "webhookUrl": "https://n8n.bleepy.com.ar/webhook/Inmobiliaria",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "datos_interesado": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.bleepy.com.ar",
+            "user-agent": "axios/1.12.2",
+            "content-length": "548",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.22.0.1",
+            "x-forwarded-host": "n8n.bleepy.com.ar",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1c0f54a5f64b",
+            "x-real-ip": "172.22.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "records.after.insert",
+            "id": "3c3946de-2792-41a3-9fd5-1e5321bb23fd",
+            "base_id": "p1w0wjxtj0gl8xi",
+            "version": "v3",
+            "data": {
+              "table_id": "mz55272fuadu95p",
+              "table_name": "Informacion",
+              "rows": [
+                {
+                  "Id": 17,
+                  "Telefono": "5491136656962",
+                  "Tipo_Interesado": "Inmobiliaria",
+                  "Horarios_Visita": "el martes a las 2",
+                  "Forma_Pago": "Crédito",
+                  "Banco_Credito": "Patagonia",
+                  "Credito_Listo": "True",
+                  "Detalle_Permuta": "",
+                  "Consulta_Micaela": "",
+                  "Nombre": "Valentino",
+                  "created_at": "2026-02-18 19:12:56+00:00",
+                  "updated_at": null,
+                  "created_by": "usw8nlbq3zserv6t",
+                  "updated_by": null
+                }
+              ]
+            }
+          },
+          "webhookUrl": "https://n8n.bleepy.com.ar/webhook/inmobiliaria-noco",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "datos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datos1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "ListaDatos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListaDatos": {
+      "main": [
+        [
+          {
+            "node": "Redis2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request operario": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request operario1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request operario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis2": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_informacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscando_otra": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datos_interesado": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request operario3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscando_otra2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request operario2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "f39cd3d6-ab26-419d-8d4c-5e132b449d3d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "78df1fa32b39bba7b720e4721c96bfa410a740362d42552a571882f00dd512d8"
+  },
+  "id": "P1RcVTYMZvLfDhhQ",
+  "tags": []
+}

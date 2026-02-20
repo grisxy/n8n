@@ -1,0 +1,14 @@
+------ Información de contacto ------ 
+LEAD Nombre: {{ $('Code in JavaScript').item.json.lead.nombre }}
+Email: {{ $('Code in JavaScript').item.json.lead.email }}
+Celular: {{ $('Code in JavaScript').item.json.lead.telefono }}
+Mensaje: {{ $('Code in JavaScript').item.json.lead.mensaje_cliente }}
+
+------ Datos Propiedad ------ 
+PROPIEDAD Título: {{ $('Code in JavaScript').item.json.propiedad.titulo }}
+Precio: {{ $('Code in JavaScript').item.json.propiedad.precio }}
+Superficie: {{ $('Code in JavaScript').item.json.propiedad.superficie }}
+Ubicación: {{ $('Code in JavaScript').item.json.propiedad.ubicacion }}
+Ref: {{ $('Code in JavaScript').item.json.propiedad.referencia_id }}
+Foto:  {{ $('Code in JavaScript').item.json.propiedad.link_web }}
+ORIGEN: {{ $('Code in JavaScript').item.json.meta.origen }}

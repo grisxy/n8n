@@ -1,0 +1,1 @@
+Extract the full text from the document as if you were reading it and return the table in HTML format

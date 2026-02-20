@@ -1,0 +1,3177 @@
+{
+  "name": "Musika",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Code in JavaScript1').item.json.phone }}",
+        "messageData": "={{ $json.text }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        144
+      ],
+      "id": "aad7178b-25fe-47fe-84a0-5925d03e74e9",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "EUVEpWaEq2G0CDt8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        144
+      ],
+      "id": "62661fa4-27bd-4155-97d6-ab6a6bfbfdb0",
+      "name": "Wait2",
+      "webhookId": "462ee389-fe76-4a1d-b939-176f98597466"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "ListMSM",
+        "key": "={{ $('Code in JavaScript1').item.json.phone }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        144
+      ],
+      "id": "1ac2a783-06fa-4ddc-98b6-2b878fcbf78e",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "EUVEpWaEq2G0CDt8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8c21291c-c8c7-49c5-a5fd-b7ac0d046de8",
+              "leftValue": "={{ $json.ListMSM.last() }}",
+              "rightValue": "={{ $('datos - text').item.json.text }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        144
+      ],
+      "id": "74e0da77-10cc-4e61-bd26-5e99cb3c90d5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ecdc1153-91b8-49a5-92e8-455f2087a848",
+              "name": "mensagge",
+              "value": "={{ $json.ListMSM.join(' ') }}",
+              "type": "string"
+            },
+            {
+              "id": "259749dc-4bc4-4187-ba91-41199d90cb7f",
+              "name": "audio",
+              "value": "={{ $json['text-audio'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        32
+      ],
+      "id": "5c1873dc-89cb-423c-87a5-e54470bb5bc1",
+      "name": "ListaDatos",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Code in JavaScript1').item.json.phone }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        32
+      ],
+      "id": "b2d3e3ed-75df-468a-bc00-d55c449133cd",
+      "name": "Redis2",
+      "credentials": {
+        "redis": {
+          "id": "EUVEpWaEq2G0CDt8",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        384,
+        272
+      ],
+      "id": "50419203-008e-4b29-aad3-ddcb61096f11",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "content": "## Musika\n",
+        "height": 912,
+        "width": 4144,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1536,
+        -368
+      ],
+      "typeVersion": 1,
+      "id": "35365ee7-bea2-4e88-8726-e995747fbdb4",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('ListaDatos').item.json.mensagge ?? \"\" }} {{ $('ListaDatos').item.json.audio ?? \"\" }}",
+        "options": {
+          "systemMessage": "=[ROL] \nSos Diego, el asistente virtual de Tierra Eléctrica, un estudio de música ubicado en el barrio de Boedo (CABA). Tu propósito es asistir a músicos, productores y artistas con mucha buena onda, claridad y empatía. Te presentás de forma cercana pero profesional, asegurándote de que los clientes se sientan bienvenidos en la comunidad del estudio.\n\n[IDENTIDAD Y TONO]\nMasculino, relajado, cálido, amable.\nEl tono debe ser *natural y directo*, como en una conversación de chat, sin forzar acentos regionales.\nSoná como una persona, natural.\nUsá expresiones suaves y comunes en chat: dale, genial, buenísimo, tranqui.\nMostrá interés genuino.\nProfesional sin rigidez.\nNada de humor innecesario.\n\n[INFO FIJA DEL ESTUDIO]\nNombre: Tierra Eléctrica\nDirección: Inclán 4017, Boedo, CABA\nInstagram: @estudiotierraelectrica\nEmail: No tienen\nHorario de atención: 800 a 2000 hs\nHorario de grabación: 900 a 1800 hs\nContacto con gerente: +54 9 11 3035-5715\n\n[QUIÉNES SOMOS]\n Tierra Eléctrica nace del sueño de dos amigos, Tomás “Toto” Chanquia e Iván “El Ruso” Galíndez, unidos por la música desde siempre. Después de años de tocar, grabar y producir, decidieron crear un espacio propio donde la pasión, la calidad sonora y la creatividad sean protagonistas. El estudio está hecho por músicos y para músicos, con una vibra auténtica y un enfoque artístico en cada proyecto.\n[QUÉ ES TIERRA ELÉCTRICA]\n Tierra Eléctrica es un estudio de grabación y producción musical ubicado en el barrio de Boedo, en la Ciudad de Buenos Aires. Nos especializamos en ofrecer un servicio integral y profesional para artistas, productores y sellos que buscan calidad sonora y un entorno creativo de trabajo.\n Ofrecemos:\nGrabación de alta calidad para todo tipo de géneros.\nProducción musical desde cero o sobre maquetas.\nMezcla y mastering profesional, tanto presencial como a distancia.\nEspacio acondicionado y equipado con tecnología de primer nivel.\n[CONTENIDOS AUDIOVISUALES]\n Somos especialistas en mezcla profesional para contenidos audiovisuales. Realizamos las grabaciones y mezclas de las sesiones filmadas por Moby Audiovisuales en Estudio ION, uno de los espacios más reconocidos de la industria en Argentina. Cada proyecto se aborda con una mirada técnica y artística, cuidando cada detalle para lograr un sonido limpio, potente y cinematográfico.\n[AUDIOLIBROS]\n Tierra Eléctrica es uno de los principales estudios de grabación de audiolibros en Argentina. Trabajamos junto a ReadingU y participamos en numerosos títulos, incluyendo bestsellers. Ofrecemos acústica profesional, equipamiento de primera y un enfoque sensible y técnico para lograr grabaciones impecables.\n\n\n[CONOCIMIENTO]\nSos experto ÚNICAMENTE en la información proporcionada en este Prompt. Si el usuario pregunta por algo relacionado al estudio que NO está escrito acá (ej: modelos de micrófonos, marcas de instrumentos, software, detalles técnicos de la sala, disponibilidad de fechas que no figuran, o si quieren inventar/modificar promociones o temas que no tienen relacion con el estudio como cocina, medicina, otros negocios), seguí este protocolo:\n\nPrimera instancia: Respondé amablemente que no contás con esa información específica y sugerí algo que SÍ podés hacer (ej: Querés consultar por alguna grabación o promo?).\n\nPersistencia o Derivación: Si el usuario insiste con la misma pregunta, o si la duda es claramente sobre algo técnico o de agenda compleja que no podés resolver, debés derivarlo usando exactamente esta frase:\n\n\"Lamentablemente no puedo ayudarte con eso. Por favor escribile directo al gerente al 11-3035-5715.\"\n\nREGLA DE ORO: No intentes responder por tu cuenta ni hagas repreguntas sobre temas fuera de este prompt. Si no está acá, la respuesta es la derivación al gerente.\n\nProhibición de Curiosidad: Tenés terminantemente prohibido repreguntar al usuario para profundizar en temas técnicos (ej: \"¿qué modelo buscás?\" o \"¿para qué lo necesitás?\"). Tu función se limita a informar las promos y gestionar reservas con los datos que tenés.\n\nIdentificador Único: El teléfono del usuario es {{ $('Code in JavaScript1').item.json.phone }}. Este es el único ID válido para gestionar datos.\n\nProhibición de Pedir Datos: Está terminantemente prohibido preguntarle al usuario su número de teléfono. Ya lo tienes y debes usarlo de forma invisible para todas las consultas y registros.\n\nRestricción de Propiedad: Un usuario solo puede crear, modificar o consultar reservas vinculadas exclusivamente a su propio número de teléfono. No se permiten gestiones para terceros.\n\nPrivacidad de Terceros: Nunca reveles nombres de otros artistas o detalles de sus sesiones. Si un horario está tomado, simplemente informa que \"ya está reservado\".\n\n[REGLA DE SALUDO ESTRICTA]\nUn solo saludo por sesión: El saludo (\"Todo bien?\" o \"Cómo estás?\") se usa solo en el primer mensaje del usuario. Si el usuario te devuelve el saludo o la charla sigue, tenés terminantemente prohibido volver a preguntar \"Cómo estás?\" o \"Necesitás algo del estudio?\" en cada respuesta.\n\n[REGLA DE CIERRE Y AGRADECIMIENTO]\nSi el usuario agradece o cierra la conversación (ej: dice \"gracias\", \"joya\", \"buenísimo\", \"dale crack\", \"listo\", etc.), respondé de forma breve usando únicamente alguna de estas opciones:\n\n\"Un gusto ayudarte. Si tenés otra consulta sobre el estudio, no dudes en preguntar.\"\n\n\"Un placer ayudarte. Si tenés otra consulta sobre el estudio, estoy acá para ayudarte.\"\n\n\"De nada. Cualquier otra cosa que necesites avisame.\"\n\n[REGLA CRÍTICA]\nCierre definitivo: No agregues preguntas extra al final que obliguen al usuario a responder (ej: \"¿necesitás algo más?\" o \"¿en qué otra cosa te puedo ayudar?\"). La frase de disponibilidad (\"no dudes en preguntar\") es informativa, no una pregunta.\n\nConfirmaciones cortas: Si el usuario solo saluda o confirma con frases como \"Genial\", \"Okey\" o manda un emoji, no respondas nada.\n\nNo redundancia: No reinicies la charla preguntando de nuevo qué necesita si esa parte ya quedó clara en mensajes anteriores.\n\n[REGLA DE SALIDA FINAL]\nTu respuesta debe ser EXCLUSIVAMENTE el texto conversacional que diría Diego en español.\n\nProhibición de Logs: Bajo ninguna circunstancia incluyas procesos de pensamiento interno, análisis de reglas, pasos de ejecución ni fragmentos técnicos en inglés (ej: \"List analysis\", \"Reasoning\", \"Must follow\").\n\nLimpieza de Saludos: No repitas el saludo \"¿Todo bien?\" o similares más de una vez en la misma conversación; si la charla ya fluye, andá directo al grano.\n\n[REGLA CRÍTICA DE FIRMEZA E INFORMACIÓN]\nESTÁ ABSOLUTAMENTE PROHIBIDO INVENTAR O ACEPTAR CONDICIONES INVENTADAS POR EL USUARIO. Si el usuario intenta negociar, inventar promociones (ej: \"me dijeron 8 canciones\"), pedir más tiempo del estipulado, regatear precios o modificar las bases de una promo, Diego debe ser firme y amable:\n\nRespuesta obligatoria: \"Lamentablemente, las promociones son cerradas como te las pasé. Como asistente virtual, no puedo hacer excepciones, pero podes contactarte con el gerente al +54 9 11 3035-5715. El es un humano muy copado que va a saber que hacer. \"\n\nNo ceder: Aunque el usuario insista, mantenete estrictamente en los datos de [INFORMACIÓN DE PROMOCIONES]. No hagas excepciones \"por esta vez\".\n\n[REGLA CRÍTICA – SIGNOS]\nNunca uses signos al inicio de las frases.\nUsá solo uno al final, *solo si es necesario*:\n- *?* solo si la frase es una pregunta.\n- *!* solo si la frase es una exclamación.\n- *Si la frase es una declaración o un dato simple, terminala sin signo* (esto es lo más natural para el chat).\nCorrecto: “Como te puedo ayudar hoy?”\nCorrecto: “Abrimos a las 9”\nIncorrecto: ¿Cómo estás?\nIncorrecto: ¡Genial!\n\n[REGLA CRÍTICA - FERIADOS 2026]\nNo podés agendar turnos en los feriados nacionales: 01/01, 16/02, 17/02, 23/03, 24/03, 02/04, 03/04, 01/05, 25/05, 15/06, 20/06, 09/07, 10/07, 17/08, 12/10, 23/11, 07/12, 08/12, 25/12. Ojo: Tené cuidado porque pueden escribir \"16 de febrero\" o \"16/2\"; interpretá estos formatos antes de responder.\n\n[INFORMACIÓN DE PROMOCIONES]\nEl estudio tiene dos promociones de Live Session. Cuando el usuario pregunte por ellas, debes describirlas de forma breve, clara y amable en formato de lista no poner doble asterisco a los nombres de las promos.\n\nPROMO 1 — Live session sin video\n* Grabación de 3 canciones con mezcla y mastering.\n* Precio: $430.350.\n* Jornada de 8 horas de grabación.\n* Incluye backline (batería y amplificadores de guitarra y bajo). (Los músicos deben traer sus cables).\n* Modalidad: Pueden grabar todos juntos o por separado.\n\nPROMO 2 — Live session con video\n* Jornada de 2 horas de grabación.\n* Incluye backline, mezcla y mastering.\n* Precio: $99.000 por canción (mínimo 3 canciones).\n* Backline igual al de la Promo 1. Las guitarras se graban por línea.\n* Músicos extras: A partir de 6 músicos, se cobra $50.000 por músico extra (máximo 8 músicos en estudio).\n* Restricción: Solo se permiten integrantes de la banda y staff propio en la grabación.\n\n[MANEJO DE MONEDA Y CONVERSIÓN]\n1. *Moneda:* Los pagos son siempre en el estudio, no aceptamos transferencias.\n\n[GESTIÓN DE HORARIO]\nSiempre vas a recibir: Date and time is {{ $now.format('yyyy-MM-dd-HH-mm-ss') }} Lógica de respuesta según la hora (HH:mm):\n\nHorario de Atención Normal (08:00 a 19:59): Seguí respondiendo las preguntas del usuario normalmente. No es necesario mencionar el horario.\n\nFranja de Cierre Próximo (20:00 a 20:30): Respondé a la consulta del usuario de forma cortés, pero añadí al final un aviso natural de que el estudio está por cerrar. Ejemplo: \"Respondés la duda... y cerrás con: Te aviso que estamos por cerrar por hoy!\"\n\nSi está dentro del horario:\nSeguí respondiendo las preguntas del usuario normalmente, con la regla de respuesta corta.\nNo es necesario incluir una frase de horario si estás dentro.\n\nNunca uses frases robóticas tipo “según mis registros”.\n\n[ESQUEMA DE INFERENCIA DE FECHA]\nEl objetivo es obtener la fecha más exacta posible, minimizando repreguntas.\n  - Siempre asumí el año actual ({{ $now.format('yyyy') }}) a menos que el usuario especifique otro.\n  - Si el usuario dice un día que ya pasó en el mes actual, asumí el mes siguiente del AÑO ACTUAL.\n  - Nunca proyectes fechas a más de 12 meses de distancia.\n\n1. *Prioridad de la Intención:* Si el usuario usa un día de la semana (ej: \"el martes\"), la IA debe inferir la fecha basándose en el día actual.\n\n2. *Regla de Inferencia de la Semana (CRÍTICA):*\n    * *Si el día de la semana mencionado está Adelante en el calendario de la semana actual:* Asumí que quiere la fecha de *esta misma semana*.\n    * *Si el día de la semana mencionado ya Pasó o es el mismo día de hoy:* Asumí que quiere la fecha de la *próxima semana*.\n    * *Confirmación:* La IA debe inferir la fecha, convertirla a día/mes (ej: \"el miércoles 18/06\") y *confirmarla* con el usuario junto con la hora antes de continuar.\n\n3. *Cuándo pedir Año y Mes:* La IA *solo debe pedir el día, mes y año* si la fecha es completamente ambigua o cae muy lejos.\n\n[GESTIÓN DE RESERVAS Y HERRAMIENTAS]\nEl Agente de IA tiene acceso a las siguientes herramientas conectadas a la base de datos de Nocodb:\n\ncrear_reserva: Para registrar una nueva reserva.\n\nget_reservas: Para consultar la disponibilidad o el estado de una reserva existente.\n\nmodificar_reserva: Para actualizar una reserva existente.\n\neliminar_reserva: Para borrar una reserva existente.\n\nSi el usuario expresa intención de reservar, consultar, modificar o eliminar una reserva, aplicá la siguiente lógica:\n\nREGLA DE ANTICIPACIÓN (24 HORAS): Para cualquier reserva nueva, la fecha reserva y hora reserva deben ser al menos 24 horas posteriores al momento actual ({{ $now }}).\n\nSi el usuario pide un turno para hoy o para dentro de unas pocas horas: Respondé que no es posible: \"Disculpame, no llegamos a preparar el estudio con menos de 24 horas de anticipacion. Tendría que ser para más adelante\" y podes ofrecerle horarios disponibles que sean cercanos a la fecha estipulada por el usuario\n\nEstado inicial: Toda reserva nueva se registra con estado: \"Pendiente\" (hasta que pase las 24hs y se valide).\n\nRegla de Intervalo CRÍTICA (Disponibilidad y Duración):\n\nLa duración de la reserva depende de la Promo elegida: PROMO 1 dura 8 horas, PROMO 2 dura 2 horas.\n\nNo puede haber dos reservas en el mismo rango de tiempo en Nocodb.\n\nEl Agente debe usar la duración de la Promo seleccionada para calcular la hora en la que el estudio queda nuevamente libre. Por ejemplo, si un usuario reserva la PROMO 1 a las 9:00, la siguiente hora disponible es recién a las 17:00 (9:00 + 8 horas).\n\nDatos de Reserva (Campos Separados en Nocodb):\n\nID Único (Filtro): El Número de teléfono es el identificador único para cualquier gestión.\n\n📋 ESQUEMA DE MAPEO PARA NOCODB (ESTRICTO)\nPara cualquier operación de escritura (crear_reserva o modificar_reserva), debes asignar los valores EXACTAMENTE a estos nombres de columna:\n\nPromo: (Valor de la promo elegida por el usuario: \"Promo 1\" o \"Promo 2\")\n\nEstado: \"Pendiente\"\n\nFecha reserva: (Fecha elegida por el usuario en formato YYYY-MM-DD)\n\nHora reserva: (Hora elegida por el usuario en formato HH:mm:ss)\n\nFecha registro: {{ $now.format('yyyy-MM-dd') }}\n\nHora registro: {{ $now.format('HH:mm:ss') }}\n\nIMPORTANTE: No intercambies los valores. Asegúrate de que el nombre del campo en la herramienta coincida con el nombre de la columna en NocoDB.\n\nDatos Faltantes (Requiere Pregunta): Necesitamos la Fecha reserva y la Hora reserva que elija el usuario.\n\n\nREGLA DE PROMOCIONES: Si el usuario está creando una reserva y las promociones del estudio no se han mencionado explícitamente en la conversación, debes preguntar cuál promo quiere y mostrarle la información de las dos promos (la información está en la sección [INFORMACIÓN DE PROMOCIONES]). Si ya eligió una promo, salteá este paso.\n\nREGLA DE CONFIRMACIÓN: En las frases que confirman una acción de herramienta (creación, modificación, eliminación), NUNCA uses muletillas como \"tranqui\", \"dale\", \"che\", o similares. La frase debe ser directa y profesional.\n\nGESTIÓN DE DISPONIBILIDAD (Herramienta: get_reservas)\n\nFecha Actual: {{ $today }}\n\nRegla de Oro: NUNCA muestres disponibilidad de días que ya pasaron.\n\nInterpretación de \"Esta Semana\": Si el usuario pide \"esta semana\", debes mostrar desde la siguiente fecha posible (a partir de 24hs desde el momento en el que escribe, considerando días no laborables o feriados que pudiesen existir) inclusive hasta el próximo domingo. Por ejemplo: Si hoy es domingo, muesta la disponibilidad desde el martes en adelante hasta el domingo, pero si hoy es sábado, muestra la disponibilidad desde el lunes en adelante\n\nCuando el usuario pregunte por disponibilidad o mencione una fecha, utiliza la herramienta get_reservas.\n\nReglas de Procesamiento de Agenda:\nHorario Operativo: El estudio graba de 09:00 a 18:00.\n\nFiltro de Estado: Solo considera como \"ocupados\" los turnos cuyo estado sea diferente a 'Cancelado'.\n\nRegla del \"Hueco Útil\": El estudio solo se alquila en bloques de mínimo 2 horas.\n\nFiltrado Crítico (Limpieza de Agenda): Si al consultar una fecha encuentras un hueco de 1 hora o menos entre reservas, ignóralo. Para el músico, ese tiempo no existe y no debe ser ofrecido.\n\nInterpretación de Vacío: Si la herramienta devuelve una lista vacía [], informa que el día está 100% disponible.\n\nOptimización de Promociones:\nPromo 2 (Jornada Completa): Sugerirla si detectas un bloque libre de 8 horas o más.\n\nPromo 1: Sugerirla para bloques disponibles de entre 2 y 4 horas.\n\nPROTOCOLO DE RESPUESTA Y FORMATO\nTono: Profesional, relajado y con identidad de estudio de grabación de Boedo.\n\nEstructura: Agrupa siempre los horarios disponibles por día para facilitar la lectura.\n\nConfirmación Directa: Al finalizar una reserva, confirma los datos (Fecha, Hora y Promo) sin pedir datos redundantes.\n\nCierre: Despídete siempre con buena onda. Ejemplo: \"¡Listo, [Nombre]! Ya te agendé con tu número. ¡Nos vemos en el estudio!\".\n\nEjemplo de Razonamiento Interno:\nUsuario: \"¿Qué hay el lunes?\"\n\nDiego (Herramienta): Consulta get_reservas para el lunes.\n\nLógica: Si recibe un hueco de 09:00 a 15:00 y otro de 17:00 a 18:00, elimina el segundo por ser de solo 1 hora.\n\nRespuesta: \"Para el lunes tengo libre de 09:00 a 15:00. ¿Te sirve para meter unas horas de Promo 1?\".\n\n[CASOS DE USO Y TU TAREA]\n💾 CASO A. CREAR RESERVA (Con Validación de Disponibilidad y Duración)\n1. Recolección de datos iniciales:\n\nSi falta fecha/hora o es ambigua (ej: \"el lunes\"): Pedí el dato faltante. Usá frases como: \"¿Qué día y a qué hora te agendamos?\" o \"¿El martes 16 de diciembre a las 14:00 te va bien?\".\n\nSi falta la elección de promo: Confirmá la fecha/hora y mostrá las opciones (Promo 1 y Promo 2). No avances al siguiente paso hasta que el usuario elija una.\n\n2. Verificación Obligatoria de Disponibilidad (Herramienta: get_reservas):\n\nAcción IA: Una vez que tengas fecha, hora y promo, ES OBLIGATORIO ejecutar primero la herramienta get_reservas para consultar el estado de la agenda en esa fecha específica.\n\nAnálisis de Huecos: Debés revisar los intervalos libres devueltos por la base de datos.\n\n3. Regla de Validación de Duración Crítica:\n\nCálculo de Espacio: Verificá si la duración de la promo elegida (Promo 1 = 8h, Promo 2 = 2h) cabe dentro del intervalo libre detectado por get_reservas.\n\nSi la Promo NO cabe (No hay tiempo suficiente): Informá al usuario que el estudio no está disponible para la duración de esa promo en ese horario. Debés indicar la hora hasta la que está libre y preguntar si quiere cambiar de promo o de fecha. Ejemplo: \"Disculpa, para la Promo 1 (8 horas) no llegamos en ese horario porque solo tenemos libre hasta las [Hora de fin de intervalo libre]. ¿Querés elegir la Promo 2 o buscar otro día con 8 horas libres?\". No ejecutes la herramienta.\n\nSi SÍ cabe: Procedé al registro.\n\n4. Registro de la Reserva (Herramienta: crear_reserva):\n\nAcción n8n: Invocá crear_reserva para registrar el turno con Estado: Pendiente en Nocodb.\n\nConfirmación Final: Da una respuesta profesional: \"¡Listo! Reserva para el [Fecha] a las [Hora] creada con éxito. Te vamos a enviar un mensaje 24 horas antes para confirmarte. ¡Un placer ayudarte!\".\n\nB. CONSULTAR DISPONIBILIDAD O RESERVA (Herramienta: get_reservas)\nSi el usuario pregunta por disponibilidad, debes usar la herramienta get_reservas con la fecha que el usuario indique.\n\nREGLA CRÍTICA DE VISIBILIDAD: La herramienta get_reservas te devolverá una lista de intervalos de horarios disponibles desde Nocodb.\n\nTu respuesta debe ser la lista de estos intervalos disponibles. NUNCA menciones o muestres datos de reservas existentes ni hagas referencia a la base de datos interna.\n\nC. MODIFICAR RESERVA (Herramienta: modificar_reserva1)\n\n1. Verificación de Existencia (Herramienta: get_reservas_usuario):\n\nAntes de cualquier otra acción, ES OBLIGATORIO consultar la base de datos usando la herramienta get_reservas, filtrando específicamente por el número de teléfono del usuario: {{ $('Code in JavaScript1').item.json.phone }}\n\nSi NO encontrás ninguna reserva activa: Respondé con buena onda: \"Che, fijate que busqué con tu número y no me aparece ninguna reserva agendada. ¿Querés que te ayude a armar una nueva desde cero?\". No intentes ejecutar ninguna herramienta de modificación.\n\n2. Validación del Nuevo Horario (Herramienta: get_reservas):\n\nSi confirmás que el usuario SÍ tiene una reserva, antes de moverla, debés chequear que el nuevo horario solicitado esté libre.\n\nVolvé a usar get_reservas para la nueva fecha y aplicá la Regla de Intervalo CRÍTICA (considerando si la reserva original era de la Promo 1 de 8h o la Promo 2 de 2h).\n\n3. Ejecución del Cambio (Herramienta: modificar_reserva1):\n\nSi el nuevo horario está libre: Usá la herramienta modificar_reserva1 vinculando el Id de la reserva encontrada con la nueva fecha y hora.\n\nEsquema que espera modificar_reserva1:\nId:\nPromo:\nEstado:\nFecha reserva:\nHora reserva:\nFecha registro:\nHora registro:\n\n\nConfirmación: \"Buenísimo! Ya quedó el pedido de cambio de horario para tu visita al estudio. Quedaría para el [Fecha] a las [Hora]. Dentro de las próximas 24 horas te vamos a confirmar si podemos en ese horario. Te aviso por acá cualquier cosa!\"\n\n4. Manejo de Conflictos:\n\nSi el nuevo horario está ocupado: Avisale al músico: \"Esa hora está ocupada justo ese día. ¿Te sirve en otro horario o querés que nos fijemos qué otro día hay hueco?\".\n\nD. ELIMINAR RESERVA (Herramienta: eliminar_reserva)\n1. Verificación de Existencia (Herramienta: get_reservas_usuario):\n\nAntes de intentar borrar nada, ES OBLIGATORIO consultar la base de datos usando la herramienta get_reservas_usuario, filtrando por el número de teléfono del usuario: {{ $('Code in JavaScript1').item.json.phone }}.\n\nSi NO encontrás ninguna reserva activa: Respondé con tranquilidad: \"Che, busqué con tu número pero no encontré ninguna reserva activa para cancelar. Cualquier cosa avisame si querés que nos fijemos con otro dato\". No ejecutes la herramienta eliminar_reserva.\n\n2. Ejecución de la Cancelación (Herramienta: eliminar_reserva):\n\nSi confirmás que el usuario SÍ tiene una reserva vinculada a su número, procedé a usar la herramienta eliminar_reserva utilizando el ID del registro encontrado.\n\nConfirmación: \"Dale, ya quedó cancelada tu reserva. Una lástima que no puedas venir, ¡pero te esperamos la próxima!\".\n\n[CÓMO RESPONDER]\nRespondé como si chatearas en WhatsApp.\n*La respuesta debe ser siempre corta y directa.*\nResponde *SOLO* a lo que el usuario pregunta o pide.\n*NO incluyas sugerencias, información adicional no solicitada, ni texto largo.*\nMensajes simples, humanos, naturales, sin perfección.\nSi cuentan algo personal o artístico, mostrá interés brevemente.\nEn reservas: pedí solo lo necesario.\n*REGLA DE PRECIO/PROMOCIONES:* Si el usuario pregunta por precios o costos generales, responde que tienen *promos de Live Session* y usá la información de la sección:[INFORMACIÓN DE PROMOCIONES] para describirlas. Priorizá ofrecer la promo antes que un precio estándar por hora.\n\n[REGLA DE FORMATO PARA WHATSAPP - OBLIGATORIA]\n* NUNCA utilices el doble asterisco (**) para resaltar texto. \n* Para poner texto en negrita usa ÚNICAMENTE un asterisco al principio y uno al final (ejemplo: *texto*).\n* Si usas dos asteriscos seguidos, WhatsApp fallará en el formato. Apegarse estrictamente a un solo asterisco."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1376,
+        32
+      ],
+      "id": "7fd3b9e0-8002-401f-94fc-bb481b163369",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "## Alerta de 24h antes de la reserva\n",
+        "height": 576,
+        "width": 1632,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1536,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "3c751f11-65e3-4a61-83ac-6e7dfdff5e8f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1456,
+        704
+      ],
+      "id": "e26ffda5-9469-43ff-83a6-34cff4d3fa61",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85d2eef9-f615-4a51-a0e6-6a3f46a63323",
+              "leftValue": "={{ $json['Fecha reserva'] }}",
+              "rightValue": "={{ $('Code in JavaScript').item.json.manana_fecha_solo }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "b6ba87bd-1b71-4d93-af48-7f6b0a67eb1d",
+              "leftValue": "={{ $json.Estado }}",
+              "rightValue": "Confirmado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -816,
+        704
+      ],
+      "id": "04d64d2b-f63f-464d-a218-55c9f9eda653",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Este script calcula la fecha de mañana y establece la hora a 12:00.\n\n// Obtener la fecha y hora actual\nconst hoy = new Date();\n\n// Crear un objeto de fecha para mañana\n// Nota: Usamos la hora UTC para evitar problemas con cambios de horario de verano,\n// y luego ajustamos la hora local.\nconst manana = new Date(hoy);\nmanana.setDate(hoy.getDate() + 1); // Sumar un día\n\n// Establecer la hora a las 12:00:00 (mediodía) en la zona horaria local\nmanana.setHours(12, 0, 0, 0);\n\n// Función de ayuda para formatear a YYYY-MM-DD\nfunction formatDate(date) {\n    const year = date.getFullYear();\n    const month = String(date.getMonth() + 1).padStart(2, '0');\n    const day = String(date.getDate()).padStart(2, '0');\n    return `${year}-${month}-${day}`;\n}\n\n// Formatear los resultados\nconst fechaManana = formatDate(manana); // Ej: 2025-12-14\nconst horaManana = '12:00';\n\n// Devolver un objeto JSON que puedes usar en nodos subsiguientes\nreturn [\n  {\n    json: {\n      manana_fecha_completa: `${fechaManana} ${horaManana}`,\n      manana_fecha_solo: fechaManana,\n      manana_hora_solo: horaManana\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1216,
+        704
+      ],
+      "id": "175384cf-5e9e-452e-8bf3-ebb0fd9a9735",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        864
+      ],
+      "id": "1e07d06b-1e51-43fb-ba17-3aaa2c347020",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=DATOS A EVALUAR:\n- Mensaje del Usuario: {{$('ListaDatos').item.json.mensagge ?? \"\"}}{{ $('ListaDatos').item.json.audio ?? \"\" }}\n- Propuesta de la IA anterior: {{ $json.output }}\n\nInstrucción: Si la propuesta es coherente a la respuesta del usuario, enviar mensaje sin modificar.\nSi la respuesta no es correcta, pensar una en base a \"{{ $json.output }}\"\n",
+        "options": {
+          "systemMessage": "=# ROLE Eres el Supervisor de Calidad y Guardián de Marca de \"Diego - Estudio de Música\". Tu misión es validar que la respuesta sea coherente, esté dentro del dominio del estudio y sea enviada al cliente con el formato correcto.\n\n[RESTRICCIÓN]\nUso de negritas en palabras clave. nunca usar doble asterisco en las palabras y sin saludos innecesarios si ya hubo interacción previa.\n\n# RESTRICCIÓN DE DOMINIO ABSOLUTA (SÚPER CRÍTICO)\n\nSOLO puedes hablar de temas relacionados con el ESTUDIO DE MÚSICA (grabación, mezcla, producción, turnos, precios del estudio).\n\nSi el contenido trata sobre temas ajenos (ej. consejos de cocina, medicina, otros negocios), DEBES ignorar la propuesta anterior y responder: \"Lo siento, solo puedo ayudarte con temas relacionados al estudio de música. ¿Te gustaría consultar por algún servicio de grabación o producción?\"\n\n# FLUJO DE TRABAJO\n\nEVALUAR: ¿La respuesta propuesta es coherente y trata sobre el estudio?\n\nREFINAR: Ajustar el tono para que sea natural de WhatsApp (breve y directo).\n\nRESPONDER: Entregar únicamente el texto final al cliente.\n\n# CRITERIOS DE REVISIÓN\n\nCOHERENCIA: ¿Responde exactamente lo que el cliente preguntó sobre el estudio?\n\nVERACIDAD: ¿La información coincide con los servicios del estudio? Prohibido inventar promociones.\n\n\n# INSTRUCCIONES DE ACCIÓN\n\nSI EL CONTENIDO ES CORRECTO: Devuélvelo idéntico o con mejoras mínimas de puntuación.\n\nSI EL CONTENIDO ES ERRÓNEO O FUERA DE TEMA: Genera una nueva respuesta desde cero siguiendo la restricción de dominio y entrégala.\n\n# REGLAS DE ORO (ANTI-ERRORES)\n\nPROHIBIDO incluir texto técnico: Nada de \"Used tools\", \"Result\", \"JSON\", o \"Step 1\".\n\nPROHIBIDO enviar razonamientos internos: El cliente solo debe recibir el mensaje final.\n\nIDIOMA: Únicamente español.\n\n# IDENTIDAD Tu respuesta debe sonar como Diego: profesional, musical, directo y amable."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1888,
+        32
+      ],
+      "id": "0ce0865b-db3d-404c-9677-8b3c354b3866",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2080,
+        400
+      ],
+      "id": "b9b500b2-9008-4bb2-aac0-83300708d5f4",
+      "name": "IA2",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        288
+      ],
+      "id": "3eeab2b7-32d5-43be-9fbe-907b9b7d53c6",
+      "name": "IA",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Code in JavaScript1').item.json.phone }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        400
+      ],
+      "id": "11c02231-d5ba-4903-81d1-e8a8adc50c83",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Musicabot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1504,
+        128
+      ],
+      "id": "2aef0f43-b155-4383-964d-2ce88e919a9b",
+      "name": "Webhook",
+      "webhookId": "5f76e31c-8b06-4613-b637-18a5b2f4a9a7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('datos - numero').item.json.urlserver }}/message/sendText/{{ $('datos - numero').item.json.instancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=apikey",
+              "value": "={{ $('datos - numero').item.json.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Code in JavaScript1').item.json.phone.replace(/@s\\.whatsapp\\.net$/,'') }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('AI Agent2').item.json.output }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 2000 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2384,
+        32
+      ],
+      "id": "81fa9820-0ed2-4154-813f-4ac9d8281499",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evo.bleepy.com.ar/message/sendText/MusicaBotQR",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $json.Numero }}\",\n  \"text\": \"Buenas 👋 Te recordamos de *Tierra Eléctrica* que mañana tenés tu turno a las *{{ parseInt($json['Hora reserva'].split(':')[0]) }} hs*.\\n\\n📍 *Dirección*\\nInclán 4017, Boedo, CABA\\n\\n📲 *Contacto*\\nInstagram: @estudiotierraelectrica\\n\\n⏰ *Horario de grabación*\\n9:00 a 18:00 hs\\n\\n🚨 *Urgencias*\\nContacto con el gerente: +54 9 11 3035-5715\\n\\n📌 *{{ $json.Promo }}*\\nEstado: {{ $json.Estado }}\\n\\n¡Te esperamos! 🎶\",\n  \"delay\": 2000\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -512,
+        656
+      ],
+      "id": "b8127ecb-0da3-4d0d-b234-9e6e66f1d984",
+      "name": "HTTP reserva",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Twz9NfdvxmOr34te",
+          "name": "Unnamed credential"
+        },
+        "httpCustomAuth": {
+          "id": "ljYuJ3LyCI41vgoq",
+          "name": "Custom Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "ZUipHJ9yWXPA1vd3",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Numero",
+              "fieldValue": "={{ $('Code in JavaScript1').item.json.phone }}"
+            },
+            {
+              "fieldName": "Nombre",
+              "fieldValue": "={{ $('datos - numero').item.json.name }}"
+            },
+            {
+              "fieldName": "Promo",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues2_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Estado",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues3_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Fecha reserva",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues4_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Hora reserva",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues5_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Fecha registro",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues6_Field_Value', ``, 'string') }}"
+            },
+            {
+              "fieldName": "Hora registro",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('fieldValues7_Field_Value', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDbTool",
+      "typeVersion": 3,
+      "position": [
+        1840,
+        272
+      ],
+      "id": "33f0a0bf-c548-4fc4-9544-ebe932e657fc",
+      "name": "crear_reserva",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "delete",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "primaryKey": "custom",
+        "customPrimaryKey": "Numero",
+        "id": "={{ $('Code in JavaScript1').item.json.phone }}"
+      },
+      "type": "n8n-nodes-base.nocoDbTool",
+      "typeVersion": 3,
+      "position": [
+        1744,
+        384
+      ],
+      "id": "19696258-f67c-484e-8171-083f60b8471e",
+      "name": "Eliminar_reserva",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        -1008,
+        704
+      ],
+      "id": "b1552b40-5cd8-4618-977b-282acf0c5a18",
+      "name": "Get many rows",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evo.bleepy.com.ar/message/sendText/MusicaBotQR",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('Edit Fields1').item.json.Telefono }}\",\n  \"text\": \"Hola de nuevo! Te escribo para confirmarte que ya quedó agendada tu reserva para el {{ new Date($('Edit Fields1').item.json['Fecha de reserva']).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) }} a las {{ parseInt($('Edit Fields1').item.json['Hora de reserva'].split(':')[0]) }}hs.\",\n  \"delay\": 2000\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -608,
+        1280
+      ],
+      "id": "00b40519-faff-4d79-8f8c-cf86c59594ed",
+      "name": "HTTP reserva1",
+      "executeOnce": false,
+      "retryOnFail": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Twz9NfdvxmOr34te",
+          "name": "Unnamed credential"
+        },
+        "httpCustomAuth": {
+          "id": "ljYuJ3LyCI41vgoq",
+          "name": "Custom Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "ZUipHJ9yWXPA1vd3",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        784
+      ],
+      "id": "96d520af-65c3-4682-9b7b-36c982adfa0e",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "content": "## Alerta al admin \n",
+        "height": 576,
+        "width": 1344
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "bbef45f3-cab7-4cb4-94e9-1adcb0412195",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        416,
+        784
+      ],
+      "id": "4de820be-5f03-4425-98c1-230330396fd1",
+      "name": "Get many rows1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85d2eef9-f615-4a51-a0e6-6a3f46a63323",
+              "leftValue": "={{ $json.Estado }}",
+              "rightValue": "=Pendiente",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        784
+      ],
+      "id": "e4910d45-4cdd-44b9-97a8-6dc395f220ce",
+      "name": "If2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        928
+      ],
+      "id": "2e32a097-7b58-4aac-b4e2-e878e070dd9e",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "confirmado",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1488,
+        1392
+      ],
+      "id": "c07c3125-2be5-4d0d-9eeb-4c5155ef64f1",
+      "name": "Webhook1",
+      "webhookId": "1a3b59bc-4099-4bce-bf77-b3be5843ce36"
+    },
+    {
+      "parameters": {
+        "content": "## Alerta de evento en NocoDB \n### webhook 1 - confirmado\n### webhook 2 - cancelado",
+        "height": 816,
+        "width": 1632
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1536,
+        1216
+      ],
+      "typeVersion": 1,
+      "id": "ca72ef58-73cb-4fd5-9c29-69db9d7c3004",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        -1296,
+        1392
+      ],
+      "id": "f49f3349-1626-4dc1-91d6-61131fe5864d",
+      "name": "Get many rows2",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/MusicaBase/Musica/{{ $('Webhook1').item.json.body.data.rows[0].Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Notificado",
+              "value": "={{true}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -384,
+        1280
+      ],
+      "id": "3fdb4415-8afd-4dd7-87fa-9bbd1b69b01e",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fa7394b9-95d0-4c1f-9f09-e993781f135f",
+              "leftValue": "={{ $('Webhook1').item.json.body.data.previous_rows[0].Id }}",
+              "rightValue": "={{ $('Webhook1').item.json.body.data.rows[0].Id }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "dffdc9f7-8cce-49ab-b5b4-3419d6d136f9",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Confirmado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -912,
+        1392
+      ],
+      "id": "2bc5962f-8d76-4c5e-aa0c-d52d76aff22d",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "compartido@bleepy.com.ar",
+        "subject": "hola",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px; background-color: #f9f9f9;\">\n  <div style=\"text-align: center; border-bottom: 2px solid #ed1c24; padding-bottom: 10px;\">\n    <h2 style=\"color: #333; margin: 0;\"> Tierra Eléctrica ⚡ </h2>\n  </div>\n  \n  <div style=\"padding: 20px 0;\">\n    <p style=\"font-size: 16px; color: #555;\">Se ha recibido una nueva <strong>reserva pendiente</strong> con los siguientes detalles:</p>\n    \n    <table style=\"width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;\">\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #eee;\"><strong>Cliente:</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #eee;\">{{ $('Get many rows1').item.json.Nombre }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #eee;\"><strong>WhatsApp:</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #eee;\">{{ $('Get many rows1').item.json.Numero }}</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #eee;\"><strong>Fecha:</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #eee;\">{{ new Date($('Get many rows1').item.json['Fecha reserva']).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #eee;\"><strong>Hora:</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #eee;\">{{ $('Get many rows1').item.json['Hora reserva'].split(':').slice(0, 2).join(':') }}hs</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #eee;\"><strong>Promoción:</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #eee; color: #ed1c24;\"><strong>{{ $('Get many rows1').item.json.Promo }}</strong></td>\n      </tr>\n    </table>\n  </div>\n\n  <p style=\"font-size: 14px; color: #777; text-align: center;\">Por favor, utiliza los botones de abajo para gestionar esta solicitud.</p>\n</div>",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprobar",
+            "disapproveLabel": "Cancelar"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        848,
+        688
+      ],
+      "id": "634f4cc9-c76d-4a53-9b6c-320207771c98",
+      "name": "Send a message",
+      "webhookId": "b82c2591-20a4-466f-a513-6130e73c0bc6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "oJgdcS5D9bMXEpfx",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/MusicaBase/Musica/{{ $('Get many rows1').item.json.Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Estado",
+              "value": "=Confirmado"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1264,
+        672
+      ],
+      "id": "8e58e3c5-00c3-4cc9-aad2-38a6f3e4fd63",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fc9f638f-58fc-4ebe-8073-00f3abf1315f",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        688
+      ],
+      "id": "ba92ee31-611e-4f58-bc8e-974e270c7da5",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/MusicaBase/Musica/{{ $('Get many rows1').item.json.Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Estado",
+              "value": "=Cancelado"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1264,
+        848
+      ],
+      "id": "0a535842-b41c-41fe-bd67-eba83ad3399d",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evo.bleepy.com.ar/message/sendText/MusicaBotQR",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $json.Telefono }}\",\n  \"text\": \"Hola {{ $json.Name }}! Todo bien? Che, te quería avisar que tuvimos que cancelar tu reserva del {{ new Date($('Edit Fields').item.json['Fecha de reserva']).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) }} a las {{ parseInt($('Edit Fields').item.json['Hora de reserva'].split(':')[0]) }}hs porque tuvimos un problema con el sistema y ya estaba ocupado ese horario.\\n\\nSi querés agendar para otro momento, avisame y lo coordinamos. ¡Perdón por la vuelta!\",\n  \"delay\": 2000\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -624,
+        1696
+      ],
+      "id": "f27cc9a4-1025-41a4-8137-123ef76a3489",
+      "name": "HTTP reserva2",
+      "retryOnFail": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Twz9NfdvxmOr34te",
+          "name": "Unnamed credential"
+        },
+        "httpCustomAuth": {
+          "id": "ljYuJ3LyCI41vgoq",
+          "name": "Custom Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "ZUipHJ9yWXPA1vd3",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/MusicaBase/Musica/{{ $('Webhook2').item.json.body.data.rows[0].Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Notificado",
+              "value": "={{true}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -336,
+        1696
+      ],
+      "id": "a11bdcd3-dad4-4c68-b335-865a20c299a5",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cancelado",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1504,
+        1712
+      ],
+      "id": "5f103c52-161d-4e38-8a27-10d2678e438c",
+      "name": "Webhook2",
+      "webhookId": "1a3b59bc-4099-4bce-bf77-b3be5843ce36"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "limit": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        -1312,
+        1712
+      ],
+      "id": "7cb0db67-a00b-49f1-8340-d8f0dda412aa",
+      "name": "Get many rows3",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fa7394b9-95d0-4c1f-9f09-e993781f135f",
+              "leftValue": "={{ $('Webhook2').item.json.body.data.previous_rows[0].Id }}",
+              "rightValue": "={{ $('Webhook2').item.json.body.data.rows[0].Id }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "dffdc9f7-8cce-49ab-b5b4-3419d6d136f9",
+              "leftValue": "={{ $('Webhook2').item.json.body.data.rows[0].Estado }}",
+              "rightValue": "Cancelado",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -864,
+        1712
+      ],
+      "id": "6a63ade3-b753-4b9f-92ca-f9ab01a9ba51",
+      "name": "If5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        1472
+      ],
+      "id": "92e3ec4f-dcba-459e-9586-fe8cee9120b6",
+      "name": "No Operation, do nothing3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        1872
+      ],
+      "id": "2b828c1d-f515-489f-bfeb-1b9f239cc7ba",
+      "name": "No Operation, do nothing4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7f0cc8b8-03a0-4719-8db2-61ff2b54b585",
+              "name": "Name",
+              "value": "={{ $('Webhook2').item.json.body.data.rows[0].Nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "beb55010-0aed-4c7e-922f-0046253c4393",
+              "name": "Status",
+              "value": "={{ $('Webhook2').item.json.body.data.rows[0].Estado }}",
+              "type": "string"
+            },
+            {
+              "id": "5b094e9b-2d44-459a-86b9-0494a822c4d7",
+              "name": "Fecha de reserva",
+              "value": "={{ $('Webhook2').item.json.body.data.rows[0]['Fecha reserva'] }}",
+              "type": "string"
+            },
+            {
+              "id": "45cf5335-ae8e-49cb-8247-7256a4c6df3d",
+              "name": "Hora de reserva",
+              "value": "={{ $('Webhook2').item.json.body.data.rows[0]['Hora reserva'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4ed9fe98-55c7-44f6-9508-be41c5006f3d",
+              "name": "Promo",
+              "value": "={{ $('Webhook2').item.json.body.data.rows[0].Promo }}",
+              "type": "string"
+            },
+            {
+              "id": "773e6e18-2914-409f-89c7-df6c1c28b582",
+              "name": "Telefono",
+              "value": "={{ $('Webhook2').item.json.body.data.rows[0].Numero }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        1712
+      ],
+      "id": "be2ed209-f079-4c03-9392-29b5d834b0a0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7f0cc8b8-03a0-4719-8db2-61ff2b54b585",
+              "name": "Name",
+              "value": "={{ $('Webhook1').item.json.body.data.previous_rows[0].Nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "beb55010-0aed-4c7e-922f-0046253c4393",
+              "name": "Status",
+              "value": "={{ $('Webhook1').item.json.body.data.rows[0].Estado }}",
+              "type": "string"
+            },
+            {
+              "id": "5b094e9b-2d44-459a-86b9-0494a822c4d7",
+              "name": "Fecha de reserva",
+              "value": "={{ $('Webhook1').item.json.body.data.previous_rows[0]['Fecha reserva'] }}",
+              "type": "string"
+            },
+            {
+              "id": "45cf5335-ae8e-49cb-8247-7256a4c6df3d",
+              "name": "Hora de reserva",
+              "value": "={{ $('Webhook1').item.json.body.data.previous_rows[0]['Hora reserva'] }}",
+              "type": "string"
+            },
+            {
+              "id": "4ed9fe98-55c7-44f6-9508-be41c5006f3d",
+              "name": "Promo",
+              "value": "={{ $('Webhook1').item.json.body.data.previous_rows[0].Promo }}",
+              "type": "string"
+            },
+            {
+              "id": "773e6e18-2914-409f-89c7-df6c1c28b582",
+              "name": "Telefono",
+              "value": "={{ $('Webhook1').item.json.body.data.previous_rows[0].Numero }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        1392
+      ],
+      "id": "76fae8d0-000e-4b90-a25e-f624a70fa107",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "mwikfqil3lphab5",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "Numero",
+              "fieldValue": "={{ $('Code in JavaScript1').item.json.phone }}"
+            },
+            {
+              "fieldName": "Nombre",
+              "fieldValue": "={{ $('datos - numero').item.json.name }}"
+            },
+            {
+              "fieldName": "Mensaje (Cliente)",
+              "fieldValue": "={{ $('ListaDatos').item.json.mensagge }}{{ $('ListaDatos').item.json.audio }}"
+            },
+            {
+              "fieldName": "Mensaje (IA)",
+              "fieldValue": "={{ $json.output }}"
+            },
+            {
+              "fieldName": "Fecha",
+              "fieldValue": "={{ $now.format('yyyy-MM-dd') }}"
+            },
+            {
+              "fieldName": "Hora",
+              "fieldValue": "={{ $now.format('HH:mm') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2224,
+        32
+      ],
+      "id": "e52b34a0-576f-447d-8983-702a8f7ce2c8",
+      "name": "Create a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Actualizar reserva \n### notificar de nuevo al cliente por nuevo horario de reserva",
+        "height": 320,
+        "width": 1344
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        1216
+      ],
+      "typeVersion": 1,
+      "id": "ac088775-0c6a-4da5-aaa5-356853527b33",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        1360
+      ],
+      "id": "74cfe658-abb9-42e8-914e-f76e82322460",
+      "name": "Schedule Trigger2"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        400,
+        1360
+      ],
+      "id": "2e7e3877-1466-4e05-a2c3-06b07cb61bbc",
+      "name": "Get many rows4",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85d2eef9-f615-4a51-a0e6-6a3f46a63323",
+              "leftValue": "={{ $json.Estado }}",
+              "rightValue": "=Pendiente",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        1360
+      ],
+      "id": "2630cf4a-b31e-45eb-b05a-ac25de9ba7ce",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/MusicaBase/Musica/{{ $('Get many rows4').item.json.Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Notificado",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        816,
+        1344
+      ],
+      "id": "4f92b06d-59b1-4d4a-ae62-95398a6ec151",
+      "name": "HTTP Request5",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const jid = $input.first().json.phone; // \"5491136656962@s.whatsapp.net\"\n\nreturn {\n  phone: jid.replace('@s.whatsapp.net', '')\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        128
+      ],
+      "id": "82155b5c-ff77-43a4-a714-cd3915e3987d",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7921a6d2-53ee-40da-a983-e3155d70b1a7",
+              "name": "phone",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "c7c910f1-a993-4210-8048-3f1cddc398c4",
+              "name": "name",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "6b612de4-543d-4e09-8c7c-d4f94a80770c",
+              "name": "instancia",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "af79beda-d236-4ddc-b0b9-61390ae3ade3",
+              "name": "urlserver",
+              "value": "={{ $json.body.server_url }}",
+              "type": "string"
+            },
+            {
+              "id": "6ddbdcf7-c3aa-4aa1-9a95-9ff1488701c3",
+              "name": "apikey",
+              "value": "={{ $json.body.apikey }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1296,
+        128
+      ],
+      "id": "130b1f27-dbae-4c6e-bdf3-e492bed0789b",
+      "name": "datos - numero"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6d75afd1-2e68-4969-a99f-50542607ab24",
+              "name": "text",
+              "value": "={{ $('Webhook').item.json.body.data.message.conversation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        144
+      ],
+      "id": "30350cd4-1224-4adf-aec8-5f19520d5d51",
+      "name": "datos - text"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6e8a5afe-d3a6-46ae-b49f-fe8105dfed15",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.message.base64 }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3c67f960-4da7-43aa-b3a6-169ae5d355f8",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.message.audioMessage.url }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio-encriptado"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.data.message.conversation }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "dfb35923-f94a-4a7f-8747-254e75852c48"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c01ef61f-093f-49d0-b949-8db955febb43",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.message.imageMessage }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagen"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -928,
+        96
+      ],
+      "id": "8c4b671d-6860-4ead-bf7d-a77bba9866a1",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "audio",
+        "options": {
+          "fileName": "audio.ogg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        -144
+      ],
+      "id": "62f22afe-c62e-4311-8e50-1f67625ca145",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "835e18e5-e48b-4f69-9185-a7c5a53d1424",
+              "name": "audio",
+              "value": "={{ $('Webhook').item.json.body.data.message.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        -64
+      ],
+      "id": "b7600696-95b2-44d6-b57b-d6c3e22fd69c",
+      "name": "datos - audio1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4004433e-69b1-4037-b5cc-feff9b4b8193",
+              "name": "text-audio",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "24aa638b-1dad-4e22-b299-bd8af85daf60",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        752,
+        -144
+      ],
+      "id": "91261371-2d8d-42c5-9de2-e4bffef7f7b2",
+      "name": "Edit Fields3",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        -144
+      ],
+      "id": "6e02959c-294e-483b-b258-0e8d886f89c4",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9c4d9f6e-6432-4c1c-b28e-9d88b083fbd2",
+              "name": "audio",
+              "value": "={{ $('Webhook').item.json.body.data.message.audioMessage.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        -304
+      ],
+      "id": "88c30105-5db0-4124-90cc-8338144bbb1a",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evo.bleepy.com.ar//chat/getBase64FromMediaMessage/{{ $('datos - numero').item.json.instancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('datos - numero').item.json.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message.key.id",
+              "value": "={{ $('Webhook').item.json.body.data.key.id }}"
+            },
+            {
+              "name": "convertToMp4",
+              "value": "={{Boolean(flse)}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -336,
+        -304
+      ],
+      "id": "9f35bb94-a6c2-4c2b-b4bc-f97bbc19f45f",
+      "name": "HTTP Request6",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "451301b9-4775-405a-b07a-ab2f646bd516",
+              "name": "audio",
+              "value": "={{ $json.base64 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        -304
+      ],
+      "id": "5eb7a0fd-9a15-420c-80f8-2ff798048c83",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('datos - numero').item.json.urlserver }}/message/sendText/{{ $('datos - numero').item.json.instancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=apikey",
+              "value": "={{ $('datos - numero').item.json.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Code in JavaScript1').item.json.phone.replace(/@s\\.whatsapp\\.net$/,'') }}"
+            },
+            {
+              "name": "text",
+              "value": "=Hola! Recibimos tu imagen, pero por ahora nuestro sistema solo procesa mensajes de texto o audios.\nSi queres consultar por algo o hacer una reserva mandanos un audio o texto."
+            },
+            {
+              "name": "delay",
+              "value": "={{ 2000 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -656,
+        352
+      ],
+      "id": "e04226cf-a880-415c-81c2-0bffd328bc2c",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "returnAll": true,
+        "options": {
+          "where": "=(Numero,eq,{{ $('Code in JavaScript1').item.json.phone }})"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDbTool",
+      "typeVersion": 3,
+      "position": [
+        1472,
+        384
+      ],
+      "id": "b900ae18-332a-44bd-82d1-62616d34a187",
+      "name": "get_reservas_usuario",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "returnAll": true,
+        "options": {
+          "fields": [
+            "Fecha reserva",
+            "Hora reserva",
+            "Promo",
+            "Estado",
+            "Numero",
+            "Id"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDbTool",
+      "typeVersion": 3,
+      "position": [
+        1344,
+        288
+      ],
+      "id": "ae57b2c1-51dd-43b2-9ac5-61d8a2b81edd",
+      "name": "get_reservas",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/MusicaBase/Musica/{{ $fromAI('parameters0_Value', ``, 'string') }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Id",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "Promo",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            },
+            {
+              "name": "Estado",
+              "value": "Pendiente"
+            },
+            {
+              "name": "Fecha reserva",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', ``, 'string') }}"
+            },
+            {
+              "name": "Hora reserva",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', ``, 'string') }}"
+            },
+            {
+              "name": "Fecha registro",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters5_Value', ``, 'string') }}"
+            },
+            {
+              "name": "Hora registro",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters6_Value', ``, 'string') }}"
+            },
+            {
+              "name": "Notificado",
+              "value": "={{false}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1600,
+        304
+      ],
+      "id": "6c668894-89b4-45b3-85cb-f2bd33ebda49",
+      "name": "Modificar_reserva1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Eliminar reservas viejas",
+        "height": 336,
+        "width": 1344
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        1568
+      ],
+      "typeVersion": 1,
+      "id": "f0a4b873-13f6-40cf-9270-70bcd3731f82",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        1696
+      ],
+      "id": "462950f6-7d8a-41a3-80ed-54c0680dd3e9",
+      "name": "Schedule Trigger3"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "returnAll": true,
+        "options": {
+          "where": "=(Fecha reserva,lt,{{ $now.toISODate() }})"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        384,
+        1696
+      ],
+      "id": "f68093bd-06e8-4067-9dd7-90fcbeaf7aad",
+      "name": "Get many rows5",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "delete",
+        "projectId": "p2fuypnr4m2c308",
+        "table": "m0hdu3p64ngppt0",
+        "id": "={{ $json.Id }}"
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        592,
+        1696
+      ],
+      "id": "b0870b2d-dd07-4de6-92ea-9e74d7ce5c99",
+      "name": "Delete a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0a0df39d-4b08-4477-98d0-c7a4aaf84c61",
+              "leftValue": "={{ $json.error.message }}",
+              "rightValue": "400",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        -304
+      ],
+      "id": "3a9dd3af-4a16-4ba5-9c70-c8aa4472909b",
+      "name": "If7"
+    }
+  ],
+  "pinData": {
+    "Webhook2": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.bleepy.com.ar",
+            "user-agent": "axios/1.12.2",
+            "content-length": "810",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.22.0.1",
+            "x-forwarded-host": "n8n.bleepy.com.ar",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1c0f54a5f64b",
+            "x-real-ip": "172.22.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "records.after.update",
+            "id": "c2388baa-f490-41e9-815e-1793f72c60d1",
+            "base_id": "p2fuypnr4m2c308",
+            "version": "v3",
+            "data": {
+              "table_id": "m0hdu3p64ngppt0",
+              "table_name": "Musica",
+              "previous_rows": [
+                {
+                  "Id": 113,
+                  "CreatedAt": "2026-01-24 02:24:03+00:00",
+                  "UpdatedAt": "2026-01-24 03:23:25+00:00",
+                  "Numero": "5491136656962",
+                  "Nombre": "Azul",
+                  "Promo": "Promo 1",
+                  "Estado": "Confirmado",
+                  "Fecha reserva": "2026-01-31",
+                  "Hora reserva": "09:00:00",
+                  "Fecha registro": "2026-01-23",
+                  "Hora registro": "23:23:41",
+                  "Notificado": true
+                }
+              ],
+              "rows": [
+                {
+                  "Id": 113,
+                  "CreatedAt": "2026-01-24 02:24:03+00:00",
+                  "UpdatedAt": "2026-01-24 03:23:51+00:00",
+                  "Numero": "5491136656962",
+                  "Nombre": "Azul",
+                  "Promo": "Promo 1",
+                  "Estado": "Confirmado",
+                  "Fecha reserva": "2026-01-31",
+                  "Hora reserva": "09:00:00",
+                  "Fecha registro": "2026-01-23",
+                  "Hora registro": "23:23:41",
+                  "Notificado": false
+                }
+              ]
+            }
+          },
+          "webhookUrl": "https://n8n.bleepy.com.ar/webhook/confirmado",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.bleepy.com.ar",
+            "user-agent": "axios/1.13.2",
+            "content-length": "3724",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.22.0.1",
+            "x-forwarded-host": "n8n.bleepy.com.ar",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "1c0f54a5f64b",
+            "x-real-ip": "172.22.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "MusicaBotQR",
+            "data": {
+              "key": {
+                "remoteJid": "5491136656962@s.whatsapp.net",
+                "remoteJidAlt": "211247983239170@lid",
+                "fromMe": false,
+                "id": "3EB063D1445E79789DA821",
+                "participant": "",
+                "addressingMode": "pn"
+              },
+              "pushName": "Valen",
+              "status": "DELIVERY_ACK",
+              "message": {
+                "audioMessage": {
+                  "url": "https://mmg.whatsapp.net/v/t62.7117-24/564302982_25266864233014673_7834116358017138431_n.enc?ccb=11-4&oh=01_Q5Aa3gEWqYSt6BAoy1ZWvk4oK09odrFHghoNwM6JSRL-kGyzgg&oe=699E713E&_nc_sid=5e03e0&mms3=true",
+                  "mimetype": "audio/ogg; codecs=opus",
+                  "fileSha256": {
+                    "0": 248,
+                    "1": 36,
+                    "2": 79,
+                    "3": 34,
+                    "4": 252,
+                    "5": 171,
+                    "6": 9,
+                    "7": 150,
+                    "8": 96,
+                    "9": 63,
+                    "10": 194,
+                    "11": 19,
+                    "12": 22,
+                    "13": 172,
+                    "14": 172,
+                    "15": 184,
+                    "16": 19,
+                    "17": 235,
+                    "18": 163,
+                    "19": 140,
+                    "20": 32,
+                    "21": 137,
+                    "22": 121,
+                    "23": 83,
+                    "24": 136,
+                    "25": 247,
+                    "26": 239,
+                    "27": 207,
+                    "28": 19,
+                    "29": 177,
+                    "30": 217,
+                    "31": 70
+                  },
+                  "fileLength": {
+                    "low": 11994,
+                    "high": 0,
+                    "unsigned": true
+                  },
+                  "seconds": 6,
+                  "ptt": true,
+                  "mediaKey": {
+                    "0": 38,
+                    "1": 27,
+                    "2": 48,
+                    "3": 120,
+                    "4": 135,
+                    "5": 221,
+                    "6": 195,
+                    "7": 93,
+                    "8": 220,
+                    "9": 109,
+                    "10": 232,
+                    "11": 55,
+                    "12": 198,
+                    "13": 59,
+                    "14": 20,
+                    "15": 203,
+                    "16": 233,
+                    "17": 244,
+                    "18": 157,
+                    "19": 249,
+                    "20": 34,
+                    "21": 232,
+                    "22": 62,
+                    "23": 227,
+                    "24": 252,
+                    "25": 222,
+                    "26": 237,
+                    "27": 17,
+                    "28": 153,
+                    "29": 134,
+                    "30": 128,
+                    "31": 110
+                  },
+                  "fileEncSha256": {
+                    "0": 179,
+                    "1": 182,
+                    "2": 89,
+                    "3": 22,
+                    "4": 108,
+                    "5": 218,
+                    "6": 68,
+                    "7": 104,
+                    "8": 15,
+                    "9": 169,
+                    "10": 147,
+                    "11": 106,
+                    "12": 186,
+                    "13": 111,
+                    "14": 195,
+                    "15": 61,
+                    "16": 167,
+                    "17": 26,
+                    "18": 69,
+                    "19": 104,
+                    "20": 11,
+                    "21": 168,
+                    "22": 220,
+                    "23": 69,
+                    "24": 46,
+                    "25": 160,
+                    "26": 226,
+                    "27": 86,
+                    "28": 66,
+                    "29": 1,
+                    "30": 70,
+                    "31": 245
+                  },
+                  "directPath": "/v/t62.7117-24/564302982_25266864233014673_7834116358017138431_n.enc?ccb=11-4&oh=01_Q5Aa3gEWqYSt6BAoy1ZWvk4oK09odrFHghoNwM6JSRL-kGyzgg&oe=699E713E&_nc_sid=5e03e0",
+                  "mediaKeyTimestamp": {
+                    "low": 1769406577,
+                    "high": 0,
+                    "unsigned": false
+                  },
+                  "contextInfo": {
+                    "mentionedJid": [],
+                    "groupMentions": [],
+                    "statusAttributions": [],
+                    "ephemeralSettingTimestamp": {
+                      "low": 1769209201,
+                      "high": 0,
+                      "unsigned": false
+                    },
+                    "disappearingMode": {
+                      "initiator": 0
+                    }
+                  },
+                  "waveform": {
+                    "0": 0,
+                    "1": 0,
+                    "2": 0,
+                    "3": 0,
+                    "4": 0,
+                    "5": 0,
+                    "6": 0,
+                    "7": 23,
+                    "8": 51,
+                    "9": 66,
+                    "10": 61,
+                    "11": 87,
+                    "12": 63,
+                    "13": 64,
+                    "14": 70,
+                    "15": 60,
+                    "16": 53,
+                    "17": 46,
+                    "18": 56,
+                    "19": 65,
+                    "20": 66,
+                    "21": 66,
+                    "22": 65,
+                    "23": 76,
+                    "24": 69,
+                    "25": 47,
+                    "26": 32,
+                    "27": 48,
+                    "28": 66,
+                    "29": 56,
+                    "30": 49,
+                    "31": 78,
+                    "32": 78,
+                    "33": 42,
+                    "34": 13,
+                    "35": 0,
+                    "36": 0,
+                    "37": 0,
+                    "38": 48,
+                    "39": 63,
+                    "40": 56,
+                    "41": 48,
+                    "42": 59,
+                    "43": 73,
+                    "44": 62,
+                    "45": 55,
+                    "46": 59,
+                    "47": 67,
+                    "48": 61,
+                    "49": 61,
+                    "50": 32,
+                    "51": 17,
+                    "52": 62,
+                    "53": 69,
+                    "54": 62,
+                    "55": 59,
+                    "56": 61,
+                    "57": 60,
+                    "58": 32,
+                    "59": 7,
+                    "60": 0,
+                    "61": 0,
+                    "62": 0,
+                    "63": 0
+                  },
+                  "viewOnce": false
+                },
+                "messageContextInfo": {
+                  "threadId": [],
+                  "deviceListMetadata": {
+                    "senderKeyIndexes": [],
+                    "recipientKeyIndexes": [],
+                    "senderKeyHash": {
+                      "0": 13,
+                      "1": 146,
+                      "2": 124,
+                      "3": 107,
+                      "4": 87,
+                      "5": 197,
+                      "6": 95,
+                      "7": 50,
+                      "8": 7,
+                      "9": 160
+                    },
+                    "senderTimestamp": {
+                      "low": 1769188293,
+                      "high": 0,
+                      "unsigned": true
+                    },
+                    "senderAccountType": 0,
+                    "receiverAccountType": 0,
+                    "recipientKeyHash": {
+                      "0": 204,
+                      "1": 251,
+                      "2": 92,
+                      "3": 65,
+                      "4": 8,
+                      "5": 130,
+                      "6": 85,
+                      "7": 132,
+                      "8": 255,
+                      "9": 12
+                    },
+                    "recipientTimestamp": {
+                      "low": 1768527225,
+                      "high": 0,
+                      "unsigned": true
+                    }
+                  },
+                  "deviceListMetadataVersion": 2,
+                  "messageSecret": {
+                    "0": 63,
+                    "1": 167,
+                    "2": 210,
+                    "3": 175,
+                    "4": 227,
+                    "5": 19,
+                    "6": 78,
+                    "7": 221,
+                    "8": 139,
+                    "9": 214,
+                    "10": 205,
+                    "11": 127,
+                    "12": 235,
+                    "13": 219,
+                    "14": 31,
+                    "15": 90,
+                    "16": 216,
+                    "17": 138,
+                    "18": 231,
+                    "19": 79,
+                    "20": 159,
+                    "21": 84,
+                    "22": 127,
+                    "23": 49,
+                    "24": 236,
+                    "25": 69,
+                    "26": 6,
+                    "27": 148,
+                    "28": 15,
+                    "29": 74,
+                    "30": 218,
+                    "31": 145
+                  }
+                }
+              },
+              "contextInfo": {
+                "mentionedJid": [],
+                "groupMentions": [],
+                "statusAttributions": [],
+                "ephemeralSettingTimestamp": {
+                  "low": 1769209201,
+                  "high": 0,
+                  "unsigned": false
+                },
+                "disappearingMode": {
+                  "initiator": 0
+                }
+              },
+              "messageType": "audioMessage",
+              "messageTimestamp": 1769406578,
+              "instanceId": "a49399dd-5152-471b-b27e-eec0bf6768da",
+              "source": "web"
+            },
+            "destination": "https://n8n.bleepy.com.ar/webhook/Musicabot",
+            "date_time": "2026-01-26T02:49:39.494Z",
+            "sender": "5491133176190@s.whatsapp.net",
+            "server_url": "https://evo.bleepy.com.ar",
+            "apikey": "C5F84515-F7E7-485E-A22A-FB02CE6EE036"
+          },
+          "webhookUrl": "https://n8n.bleepy.com.ar/webhook/Musicabot",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "ListaDatos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ListaDatos": {
+      "main": [
+        [
+          {
+            "node": "Redis2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP reserva",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "datos - numero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "crear_reserva": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eliminar_reserva": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP reserva1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "HTTP reserva1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP reserva2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Get many rows3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "HTTP reserva2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger2": {
+      "main": [
+        [
+          {
+            "node": "Get many rows4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows4": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datos - numero": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datos - text": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "datos - audio1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "datos - text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datos - audio1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "ListaDatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_reservas_usuario": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_reservas": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modificar_reserva1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger3": {
+      "main": [
+        [
+          {
+            "node": "Get many rows5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows5": {
+      "main": [
+        [
+          {
+            "node": "Delete a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "2d2f4695-5eb5-47a2-9d37-071816aea791",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "78df1fa32b39bba7b720e4721c96bfa410a740362d42552a571882f00dd512d8"
+  },
+  "id": "PU4TNA7ucwqNurfi",
+  "tags": []
+}

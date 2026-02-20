@@ -1,0 +1,1535 @@
+{
+  "name": "facturitas",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1FkE3dYxZQeeZxVZdaBiGh8BF0P9IolhZ",
+          "mode": "list",
+          "cachedResultName": "facturitas_no_procesadas",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1FkE3dYxZQeeZxVZdaBiGh8BF0P9IolhZ"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        32
+      ],
+      "id": "dd7eb5fe-5ddc-4910-9af3-48e4870977f9",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "K2kx39YPiUmMlupk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        144,
+        32
+      ],
+      "id": "2d6c8031-3026-4e67-b712-931572c12c83",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -176
+      ],
+      "id": "9a66df0f-0b85-4bfb-8001-5999f4ec28b9",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f965fd10-e695-4c0f-bb44-f810ef77bc34",
+              "name": "name_file",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "7217291a-dada-4589-9849-f1bb8883e6eb",
+              "name": "id_file",
+              "value": "={{ $json.lastModifyingUser.permissionId }}",
+              "type": "string"
+            },
+            {
+              "id": "db2b0439-d167-438e-9254-10d14be73d5b",
+              "name": "mimeType",
+              "value": "={{ $json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "b9aea5f9-5f7f-49e0-876c-d970949d0fcb",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        48
+      ],
+      "id": "56689867-2a38-4d06-9b04-eaa71176be7d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output?.[0]?.content?.[0]?.text || $json.text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "Extract the full text from the document as if you were reading it and return the table in HTML format\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        32
+      ],
+      "id": "922febdf-9797-4974-8c1f-a37b76982943",
+      "name": "AI Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-3.5-turbo"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        464
+      ],
+      "id": "c9c09b56-b4b6-49ca-83f8-5173fc9dbb5a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=my data: {{ $json.output }}\n\n\n\nYou are an expert in financial data entry.\n\nYour input data will be a JSON object or text file containing optical character recognition (OCR) data from an invoice. It may contain missing fields, extra fields, or inconsistent formatting.\n\nYour task is:\n\n1. Extract data from the input into a strictly valid JSON object using the following example schema:\n\n{\n\"transaction\": {\n\"operation_id\": \"\",\n\"date\": \"\",\n\"time\": \"\",\n\"amount\": ,\n\"currency\": \"\",\n\"reason\": \"\",\n\"platform\": \"\"\n},\n\"sender\": {\n\"name\": \"\",\n\"tax_ID\": \"\",\n\"entity\": \"\"\n},\n\"receiver\": {\n\"name\": \"\",\n\"tax_ID\": \"\",\n\"entity\": \"\"\n\n}\n}\n\n2. Remove any fields not listed above.\n\n3. If a value is missing or ambiguous, set it to null.\n\n4. Format \"LineItems\" as a dictionary list with the specified keys and ensure all line item fields are present.\n\n5. Generate only the sanitized, strictly valid, Airtable-ready JSON object. Do not include any additional explanation or text.\n\nRegarding numeric fields (\"TotalAmount\" and all numeric fields in \"LineItems\"):\n\n1. All numeric fields must be formatted as valid JSON numbers (e.g., 17000, 1210.50) or set to null.\n\n2. You MUST remove all currency symbols (e.g., \"$\", \"€\").\n\n3. You MUST remove all thousands separators (e.g., \",\").\n\n4. Ensure that any decimal separator is a period \".\" (for example, convert \"12.50\" to 12.50).\n\n5. For example: convert \"€17000\" to 17000. Convert \"1210.50\" to 1210.50.\n\nCritical: Fields MUST be populated ONLY with the input data.\n\nInput:\n\n[Run previous nodes for preview] {{ $json.output }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        2160,
+        48
+      ],
+      "id": "3cf2a9d1-ac3e-447a-bbaf-8c22c867ef26",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Edit Fields').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1G82RkqiTEFUHljGUEczD9DBe4Xh6RRuY",
+          "mode": "list",
+          "cachedResultName": "facturitas_not_ok",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1G82RkqiTEFUHljGUEczD9DBe4Xh6RRuY"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2528,
+        192
+      ],
+      "id": "37868989-dbb7-418d-80b9-5db7afb45680",
+      "name": "facturitas_not_ok",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "K2kx39YPiUmMlupk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "pymotxoet737zcj",
+        "table": "my52kayzd5edwnu",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "id_operacion",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.operation_id }}"
+            },
+            {
+              "fieldName": "fecha",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.date }}"
+            },
+            {
+              "fieldName": "hora",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.time }}"
+            },
+            {
+              "fieldName": "monto",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.amount }}"
+            },
+            {
+              "fieldName": "moneda",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.currency }}"
+            },
+            {
+              "fieldName": "razon",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.reason }}"
+            },
+            {
+              "fieldName": "plataforma",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.platform }}"
+            },
+            {
+              "fieldName": "remitente",
+              "fieldValue": "={{ $json.output[0].content[0].text.sender.name }}"
+            },
+            {
+              "fieldName": "cuit_remitente",
+              "fieldValue": "={{ $json.output[0].content[0].text.sender.tax_ID }}"
+            },
+            {
+              "fieldName": "entidad_remitente",
+              "fieldValue": "={{ $json.output[0].content[0].text.sender.entity }}"
+            },
+            {
+              "fieldName": "receptor",
+              "fieldValue": "={{ $json.output[0].content[0].text.receiver.name }}"
+            },
+            {
+              "fieldName": "cuit_emisor",
+              "fieldValue": "={{ $json.output[0].content[0].text.receiver.tax_ID }}"
+            },
+            {
+              "fieldName": "entidad_emisor",
+              "fieldValue": "={{ $json.output[0].content[0].text.receiver.entity }}"
+            },
+            {
+              "fieldName": "gpat",
+              "fieldValue": "={{false}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        2528,
+        -16
+      ],
+      "id": "3c8e9659-4563-499f-bdb7-76c927108a48",
+      "name": "Create a row",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Edit Fields').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1dmX-T64Uli3wEpARXvsS0ZlAsgkk0fu0",
+          "mode": "list",
+          "cachedResultName": "facturitas_ok",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1dmX-T64Uli3wEpARXvsS0ZlAsgkk0fu0"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2848,
+        -144
+      ],
+      "id": "246dd036-9a76-49c9-8bb9-60ca23ca0263",
+      "name": "facturitas_ok",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "K2kx39YPiUmMlupk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Facturas Drive\n\n",
+        "height": 752,
+        "width": 3408
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -288
+      ],
+      "typeVersion": 1,
+      "id": "2e513d4a-0fcf-4639-9e6a-d7249337b5a3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment",
+          "readStatus": "unread",
+          "sender": "ndubeira@gmail.com"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        736
+      ],
+      "id": "a2e05438-297e-48b5-ab54-672ebe34da0b",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zNJW8kI7VrCX5PQI",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output?.[0]?.content?.[0]?.text || $json.text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "Extract the full text from the document as if you were reading it and return the table in HTML format\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        896,
+        640
+      ],
+      "id": "adcfb804-9913-4247-a084-f4b68b6b232b",
+      "name": "AI Agent1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "You are an expert in financial data entry.\n\nYour input data will be a JSON object or text file containing optical character recognition (OCR) data from an invoice. It may contain missing fields, extra fields, or inconsistent formatting.\n\nYour task is:\n\n1. Extract data from the input into a strictly valid JSON object using the following example schema:\n\n{\n\"transaction\": {\n\"operation_id\": \"143255035228\",\n\"date\": \"2026-01-23\",\n\"time\": \"17:42:00\",\n\"amount\": 200000.00,\n\"currency\": \"ARS\",\n\"reason\": \"Various\",\n\"platform\": \"Mercado Pago\"\n},\n\"sender\": {\n\"name\": \"Nicolas Daniel Ubeira\",\n\"tax_ID\": \"20-37140330-3\",\n\"entity\": \"Mercado Pago\"\n},\n\"receiver\": {\n\"name\": \"Cristian Eduardo Olivera\",\n\"tax_ID\": \"20-32731891-9\",\n\"entity\": \"Mercado Pago\"\n\n}\n}\n\n2. Remove any fields not listed above.\n\n3. If a value is missing or ambiguous, set it to null.\n\n4. Format \"LineItems\" as a dictionary list with the specified keys and ensure all line item fields are present.\n\n5. Generate only the sanitized, strictly valid, Airtable-ready JSON object. Do not include any additional explanation or text.\n\nRegarding numeric fields (\"TotalAmount\" and all numeric fields in \"LineItems\"):\n\n1. All numeric fields must be formatted as valid JSON numbers (e.g., 17000, 1210.50) or set to null.\n\n2. You MUST remove all currency symbols (e.g., \"$\", \"€\").\n\n3. You MUST remove all thousands separators (e.g., \",\").\n\n4. Ensure that any decimal separator is a period \".\" (for example, convert \"12.50\" to 12.50).\n\n5. For example: convert \"€17000\" to 17000. Convert \"1210.50\" to 1210.50.\n\nCritical: Fields MUST be populated ONLY with the input data.\n\nInput:\n\n[Run previous nodes for preview]"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        624
+      ],
+      "id": "fff68db5-bf4d-4fb9-8d3c-c014eb4160e8",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3618d97a-9ce5-4bbc-9849-a7259ef0f524",
+              "name": "adress",
+              "value": "={{ $json.from.value[0].address }}",
+              "type": "string"
+            },
+            {
+              "id": "ee85f88d-687a-452b-92f0-15986d33cc36",
+              "name": "name",
+              "value": "={{ $json.from.value[0].name }}",
+              "type": "string"
+            },
+            {
+              "id": "cc62bbc4-e3fc-4c2b-af62-51906eaaf751",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        736
+      ],
+      "id": "984d78bf-1b07-4761-b39a-9472846dd4d9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $node[\"Gmail Trigger\"].binary.attachment_0.mimeType }}",
+                    "rightValue": "image/jpeg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ae6b4653-3fa4-4aa3-a66d-a058b4252a71"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "jpeg"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ab2234b2-3736-4131-a3f9-e10c111460d5",
+                    "leftValue": "={{ $node[\"Gmail Trigger\"].binary.attachment_0.mimeType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "40dd4676-ecf8-42f0-a75d-c7133d45ed2b",
+                    "leftValue": "={{ $node[\"Gmail Trigger\"].binary.attachment_0.mimeType }}",
+                    "rightValue": "image/png",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        432,
+        736
+      ],
+      "id": "8e1f5bd8-a04b-49ff-895d-07d87dee43f5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        912
+      ],
+      "id": "e038cc63-d4bc-452f-9974-2f8fbd7516d4",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "Extract the full text from the document as if you were reading it and return the table in HTML format",
+        "inputType": "base64",
+        "binaryPropertyName": "attachment_0",
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        640
+      ],
+      "id": "1438c1d6-53a9-4f0a-aa59-802ab91a813c",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "pymotxoet737zcj",
+        "table": "my52kayzd5edwnu",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "id_operacion",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.operation_id }}"
+            },
+            {
+              "fieldName": "fecha",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.date }}"
+            },
+            {
+              "fieldName": "hora",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.time }}"
+            },
+            {
+              "fieldName": "monto",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.amount }}"
+            },
+            {
+              "fieldName": "moneda",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.currency }}"
+            },
+            {
+              "fieldName": "razon",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.reason }}"
+            },
+            {
+              "fieldName": "plataforma",
+              "fieldValue": "={{ $json.output[0].content[0].text.transaction.platform }}"
+            },
+            {
+              "fieldName": "remitente",
+              "fieldValue": "={{ $json.output[0].content[0].text.sender.name }}"
+            },
+            {
+              "fieldName": "cuit_remitente",
+              "fieldValue": "={{ $json.output[0].content[0].text.sender.tax_ID }}"
+            },
+            {
+              "fieldName": "entidad_remitente",
+              "fieldValue": "={{ $json.output[0].content[0].text.sender.entity }}"
+            },
+            {
+              "fieldName": "emisor",
+              "fieldValue": "={{ $json.output[0].content[0].text.receiver.name }}"
+            },
+            {
+              "fieldName": "cuit_emisor",
+              "fieldValue": "={{ $json.output[0].content[0].text.receiver.tax_ID }}"
+            },
+            {
+              "fieldName": "entidad_emisor",
+              "fieldValue": "={{ $json.output[0].content[0].text.receiver.entity }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        1744,
+        608
+      ],
+      "id": "9c04692f-4889-4595-9312-6d45e61a7edd",
+      "name": "Create a row1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "q6erYWnXX71ZTiT1",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields1').item.json.adress }}",
+        "subject": "ya anda viado",
+        "message": "=<h3>Comprobante de Pago Recibido</h3>\n<hr>\n<p><strong>Resumen de la Transacción:</strong></p>\n<ul style=\"list-style-type: none; padding-left: 0;\">\n  <li style=\"margin-bottom: 8px;\"><strong>🔹 ID Operación:</strong> {{ $json.id_operacion }}</li>\n  <li style=\"margin-bottom: 8px;\"><strong>💰 Monto:</strong> <span style=\"color: #2e7d32; font-size: 1.1em;\">${{ $json.monto }}</span></li>\n  <li style=\"margin-bottom: 8px;\"><strong>📅 Fecha y Hora:</strong> {{ $json.fecha }} a las {{ $json.hora }} hs</li>\n  <li style=\"margin-bottom: 8px;\"><strong>🏦 Plataforma:</strong> {{ $json.plataforma }}</li>\n</ul>\n\n<p><strong>Detalles de las Partes:</strong></p>\n<ul style=\"list-style-type: none; padding-left: 0;\">\n  <li style=\"margin-bottom: 6px;\"><strong>👤 Emisor:</strong> {{ $json.emisor }} <span style=\"color: #666;\">({{ $json.cuit_emisor }})</span></li>\n  <li style=\"margin-bottom: 6px;\"><strong>📩 Receptor:</strong> {{ $json.remitente }} <span style=\"color: #666;\">({{ $json.cuit_remitente }})</span></li>\n  <li style=\"margin-bottom: 6px;\"><strong>📝 Motivo:</strong> {{ $json.razon }}</li>\n</ul>\n\n<br>\n<p style=\"color: #888; font-size: 12px; border-top: 1px solid #eee; pt-10px;\">\n  <i>Procesado automáticamente por el Sistema de Gestión.</i>\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1952,
+        608
+      ],
+      "id": "057be6a8-98bf-4196-a790-243db48749af",
+      "name": "Send a message",
+      "webhookId": "8b6dc506-37c5-4ac7-a296-f9157da5cb30",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zNJW8kI7VrCX5PQI",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Facturas gmail\n### primer camino jpeg - segundo camino pdf\n",
+        "height": 560,
+        "width": 2400,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        528
+      ],
+      "typeVersion": 1,
+      "id": "00c56138-3b36-4135-b01d-a39ab529f75c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        784,
+        80
+      ],
+      "id": "3679c458-51cc-42cc-8e47-37117c17075e",
+      "name": "Download file",
+      "retryOnFail": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "K2kx39YPiUmMlupk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ab2234b2-3736-4131-a3f9-e10c111460d5",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "image/jpeg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ae6b4653-3fa4-4aa3-a66d-a058b4252a71"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "jpeg"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "40dd4676-ecf8-42f0-a75d-c7133d45ed2b",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "image/png",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        960,
+        64
+      ],
+      "id": "27b2b179-0c62-4cdd-bb75-ca004502b591",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        -144
+      ],
+      "id": "3e2bea81-c141-45bc-b2cf-ba7aeef02e78",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "Extract the full text from the document as if you were reading it and return the table in HTML format",
+        "inputType": "base64",
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        96
+      ],
+      "id": "a50ff9d9-0d05-4a9a-b85c-6b8475cb4f90",
+      "name": "Analyze image1",
+      "credentials": {
+        "openAiApi": {
+          "id": "CWFJqjA34vPh6A0b",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.output || \"\";\nconst originalText = $json.original_message;\n\n// Escapar HTML\nlet escaped = text\n  .replace(/&/g, \"&amp;\")\n  .replace(/</g, \"&lt;\")\n  .replace(/>/g, \"&gt;\");\n\n// Reemplazo con validación\nescaped = escaped.replace(\n  /COMPROBANTE PAGADO A OTRO DESTINATARIO/gi,\n  () => {\n    let extra = \"\";\n    if (originalText) {\n      extra = `\n        <br>\n        <em style=\"color:#555;\">\n          Datos del mensaje original: ${originalText}\n        </em>\n      `;\n    }\n\n    return `\n      <strong style=\"color:#d32f2f;\">\n        COMPROBANTE PAGADO A OTRO DESTINATARIO\n      </strong>\n      ${extra}\n    `;\n  }\n);\n\n// Saltos de línea → <br>\nconst html = escaped.replace(/\\n/g, \"<br>\");\n\nreturn [{\n  json: {\n    ...$json,\n    output_html: `\n      <div style=\"font-family: Arial, sans-serif; line-height:1.6\">\n        ${html}\n      </div>\n    `\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1936,
+        32
+      ],
+      "id": "0e5775f2-1f03-4360-80c0-a4634d25582e",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "91221884-d9eb-442a-8cbd-f0c08519c2f5",
+              "leftValue": "={{ $('Message a model').item.json.output[0].content[0].text.receiver.name }}",
+              "rightValue": "Gpat Compañia Financiera",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3056,
+        -144
+      ],
+      "id": "dddab021-371a-4bd8-886e-433ae92c0e81",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3264,
+        -240
+      ],
+      "id": "33b9f51e-6368-4b0f-8932-f485c443692e",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://nocodb.bleepy.com.ar/api/v1/db/data/noco/facturas/facturas_datos/{{ $('Create a row').item.json.Id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "gpat",
+              "value": "={{true}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3264,
+        -64
+      ],
+      "id": "43d84106-4bd6-40dd-b3ec-6000766d9d53",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "a13BmzapFwL14n1q",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        48
+      ],
+      "id": "0b76ea1b-6bf7-4408-b70d-54c8ebf726d3",
+      "name": "Wait",
+      "webhookId": "5a55e0d6-cb8f-43af-a852-6557190f3a2e"
+    }
+  ],
+  "pinData": {
+    "Google Drive Trigger": [
+      {
+        "json": {
+          "parents": [
+            "1FkE3dYxZQeeZxVZdaBiGh8BF0P9IolhZ"
+          ],
+          "lastModifyingUser": {
+            "displayName": "Valentino Fiori",
+            "kind": "drive#user",
+            "me": true,
+            "permissionId": "14610010169788577388",
+            "emailAddress": "valentino.f@bleepy.com.ar",
+            "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLJxF5XMey_ufjVQgpEmYeGPqQXYNzcJQP5sNFYR6Vn-Iq5gA=s64"
+          },
+          "owners": [
+            {
+              "displayName": "Valentino Fiori",
+              "kind": "drive#user",
+              "me": true,
+              "permissionId": "14610010169788577388",
+              "emailAddress": "valentino.f@bleepy.com.ar",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLJxF5XMey_ufjVQgpEmYeGPqQXYNzcJQP5sNFYR6Vn-Iq5gA=s64"
+            }
+          ],
+          "permissions": [
+            {
+              "kind": "drive#permission",
+              "id": "anyoneWithLink",
+              "type": "anyone",
+              "role": "writer",
+              "allowFileDiscovery": false
+            },
+            {
+              "kind": "drive#permission",
+              "id": "14610010169788577388",
+              "type": "user",
+              "emailAddress": "valentino.f@bleepy.com.ar",
+              "role": "owner",
+              "displayName": "Valentino Fiori",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocLJxF5XMey_ufjVQgpEmYeGPqQXYNzcJQP5sNFYR6Vn-Iq5gA=s64",
+              "deleted": false,
+              "pendingOwner": false
+            },
+            {
+              "kind": "drive#permission",
+              "id": "06104369017456184754",
+              "type": "user",
+              "emailAddress": "ndubeira@bleepy.com.ar",
+              "role": "writer",
+              "displayName": "ndubeira",
+              "photoLink": "https://lh3.googleusercontent.com/a-/ALV-UjX9UTBFOjo6ApJcu9jWeyZcQmDNtHAbqYNzIbUi6zEQurN8fQ=s64",
+              "deleted": false,
+              "pendingOwner": false
+            }
+          ],
+          "spaces": [
+            "drive"
+          ],
+          "capabilities": {
+            "canAcceptOwnership": false,
+            "canAddChildren": false,
+            "canAddMyDriveParent": false,
+            "canChangeCopyRequiresWriterPermission": true,
+            "canChangeItemDownloadRestriction": true,
+            "canChangeSecurityUpdateEnabled": false,
+            "canChangeViewersCanCopyContent": true,
+            "canComment": true,
+            "canCopy": true,
+            "canDelete": true,
+            "canDisableInheritedPermissions": false,
+            "canDownload": true,
+            "canEdit": true,
+            "canEnableInheritedPermissions": true,
+            "canListChildren": false,
+            "canModifyContent": true,
+            "canModifyContentRestriction": true,
+            "canModifyEditorContentRestriction": true,
+            "canModifyOwnerContentRestriction": true,
+            "canModifyLabels": false,
+            "canMoveChildrenWithinDrive": false,
+            "canMoveItemIntoTeamDrive": true,
+            "canMoveItemOutOfDrive": true,
+            "canMoveItemWithinDrive": true,
+            "canReadLabels": false,
+            "canReadRevisions": true,
+            "canRemoveChildren": false,
+            "canRemoveContentRestriction": false,
+            "canRemoveMyDriveParent": true,
+            "canRename": true,
+            "canShare": true,
+            "canTrash": true,
+            "canUntrash": true
+          },
+          "permissionIds": [
+            "anyoneWithLink",
+            "14610010169788577388",
+            "06104369017456184754"
+          ],
+          "imageMediaMetadata": {
+            "width": 990,
+            "height": 1502,
+            "rotation": 0
+          },
+          "linkShareMetadata": {
+            "securityUpdateEligible": false,
+            "securityUpdateEnabled": true
+          },
+          "downloadRestrictions": {
+            "itemDownloadRestriction": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            },
+            "effectiveDownloadRestrictionWithContext": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            }
+          },
+          "kind": "drive#file",
+          "id": "1RzDCpnxo7y-gnmRM2PolR-Mi5pLGA-Wq",
+          "name": "IMG-20260123-WA0148.jpg",
+          "mimeType": "image/jpeg",
+          "starred": false,
+          "trashed": false,
+          "explicitlyTrashed": false,
+          "version": "2",
+          "webContentLink": "https://drive.google.com/uc?id=1RzDCpnxo7y-gnmRM2PolR-Mi5pLGA-Wq&export=download",
+          "webViewLink": "https://drive.google.com/file/d/1RzDCpnxo7y-gnmRM2PolR-Mi5pLGA-Wq/view?usp=drivesdk",
+          "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/image/jpeg",
+          "hasThumbnail": true,
+          "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBPKvIBKGAlhbtyM5nWmKysqMH6L1sZ36bdGTZuMmflMe4xCYgDXKkjrL0WW4i3Fveqx5uJugwtD9-92bN4T-vsRz7IlU7k3KfoomVoqQKO9AJUV4Q=s220",
+          "thumbnailVersion": "1",
+          "viewedByMe": true,
+          "viewedByMeTime": "2026-01-28T18:12:47.794Z",
+          "createdTime": "2026-01-28T18:12:47.794Z",
+          "modifiedTime": "2026-01-28T17:57:29.000Z",
+          "modifiedByMeTime": "2026-01-28T17:57:29.000Z",
+          "modifiedByMe": true,
+          "shared": true,
+          "ownedByMe": true,
+          "viewersCanCopyContent": true,
+          "copyRequiresWriterPermission": false,
+          "writersCanShare": true,
+          "originalFilename": "IMG-20260123-WA0148.jpg",
+          "fullFileExtension": "jpg",
+          "fileExtension": "jpg",
+          "md5Checksum": "50498079437638ed05d7366544a99708",
+          "sha1Checksum": "640063ee6be416262f276a07832457fdbacd6bd4",
+          "sha256Checksum": "3e876c3ee785a0ac25a04ac57a2c749f37d3c2257877b68fe1e9f3e84b96cf64",
+          "size": "142451",
+          "quotaBytesUsed": "142451",
+          "headRevisionId": "0B_sO65w5bDKKUk5JSVFOZFVVRVJoYTJBL0Z3amZiYk9vY2xNPQ",
+          "isAppAuthorized": false,
+          "inheritedPermissionsDisabled": false
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "facturitas_not_ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "facturitas_not_ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "facturitas_ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "facturitas_ok": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "facturitas_not_ok": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "d3742d3b-3302-46e9-949c-8da011412122",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "78df1fa32b39bba7b720e4721c96bfa410a740362d42552a571882f00dd512d8"
+  },
+  "id": "4kLBXGhoHmlT0mEc",
+  "tags": []
+}

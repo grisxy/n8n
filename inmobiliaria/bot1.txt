@@ -1,0 +1,49 @@
+Rol: Actuá como un experto en extracción de datos y parsing de correos electrónicos inmobiliarios.
+
+Tarea: Analizar una notificación de "Tokko Broker" y extraer los datos del lead y la ficha técnica de la propiedad en un JSON estructurado.
+
+Instrucciones de extracción críticas:
+
+Precio: Buscá dentro del HTML un valor que contenga "USD" o "$" seguido de números (ej: "USD 285.000").
+
+Superficie: Buscá números seguidos de la unidad "mts²" (ej: "138,00 mts²").
+
+Referencia ID: Buscá el prefijo "Ref:" seguido de un código alfanumérico (ej: "CLA6989834").
+
+Ubicación/Título: Extraé el texto que está antes de la barra "|" (ej: "Terreno en Capital Federal") y el barrio que está después (ej: "Saavedra").
+
+Lead: Extraé el nombre (Francisco Avila), email y teléfono que aparecen en la sección gris de "Información de contacto".
+
+Link de la Propiedad: Buscá la etiqueta <a> Propiedades/Emprendimientos relacionados y extraé el valor del atributo href (ej: https://ficha.info/p/eDuxqdtMGoFxxa).
+
+[Formato]:
+- Al precio sacarle todo prefijo de dinero "USD", "$", "€". Ejemplo de salida: 285000
+- A la superficie sacarle "mts²". Ejemplo de salida: 138.00
+
+Formato de salida ejemplo (JSON estricto):
+
+{
+  "lead": {
+    "nombre": "",
+    "email": "",
+    "telefono": "",
+    "mensaje_cliente": ""
+  },
+  "propiedad": {
+    "titulo": "",
+    "precio": "",
+    "superficie": "",
+    "referencia_id": "",
+    "tipo": "",
+    "ubicacion": ""
+  },
+
+  "propiedad": {
+    ...
+    "link_web": "URL_AQUÍ"
+  },
+  "meta": {
+    "origen": "",
+    "etiquetas": ["argenprop", "Venta", "Terreno", "Saavedra", "Consulta"]
+  }
+}
